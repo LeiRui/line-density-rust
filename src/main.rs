@@ -56,8 +56,11 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
 fn main() {
     let now = Instant::now();
 
-    let width = 400;
-    let height = 300;
+    // let width = 400;
+    // let height = 300;
+
+    let width = 4;
+    let height = 3;
 
 
     // parse command line argument
@@ -77,7 +80,8 @@ fn main() {
     }
 
     // create sine wave as a model
-    let model: Vec<f32> = (0..width).map(|x| {
+    let model: Vec<f32> = (0..width*2).map(|x| x as f32 * 0.5 {
+        println!("Index {}", x);
         let heightf = height as f32;
         let xf = x as f32;
         let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;

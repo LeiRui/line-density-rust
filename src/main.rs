@@ -22,7 +22,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32) -> Image {
     // for x in 0..series.len() - 1 { // TODO x default as regular index?
     for x in 0..width*k-1 { // -1 because draw line connecting two points
     // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
-        println!("{}", x as f32/k as f32);
+        // println!("{}", x as f32/k as f32);
         draw_line_segment_mut(
             &mut data,
             (x as f32/k as f32, series[x as usize] as f32),
@@ -61,7 +61,7 @@ fn main() {
 
     let width = 400;
     let height = 300;
-    let k = 2; // regular point count width*k
+    let mut k = 2; // regular point count = width*k
 
     //let width = 4;
     //let height = 3;
@@ -69,7 +69,7 @@ fn main() {
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
-    let mut iterations = 100;
+    let mut iterations = 100; // number of time series
 
     if args.len() == 2 {
         iterations = match args[1].parse() {

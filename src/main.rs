@@ -131,7 +131,7 @@ fn main() {
             } else if value > height as f32 {
                 height
             } else {
-                value as u32
+                value as u32 // 这里又还原回整数了？
             }
         }).collect()
     }).collect();
@@ -149,13 +149,13 @@ fn main() {
              let start = series.len()/w * i;
              let end = series.len()/w * (i+1);
              for j in start..end {
-                 print!("{:#?},", series[j]);
+                 print!("{},", series[j]);
              }
              println!("");
          }
     });
 
-    let data: Vec<u32> = data.iter().map(|series| {
+    let data2: Vec<Vec<u32>> = data.iter().map(|series| {
          // for one series
          // println!("{:#?}", series);
          for i in 0..w {
@@ -167,7 +167,36 @@ fn main() {
              }
              println!("");
          }
-         i
+         1
+    }).collect();
+
+    data2.iter().for_each(|v| {
+         // for one series
+         print!("{:#?}", v);
+    });
+
+    let data3: Vec<Vec<u32>> = data.iter().map(|series| {
+         // for one series
+         // println!("{:#?}", series);
+         for i in 0..w {
+             // println!("{}", x as f32/k as f32);
+             let start = series.len()/w * i;
+             let end = series.len()/w * (i+1);
+             let mut large: u32 = -1; // note value range [0,height]
+             let mut small: u32 = height+1; // note value range [0,height]
+             for j in start..end {
+                  if large < series[j] {
+                      large = series[j]
+                  }
+                  if small > series[j] {
+                      small = series[j]
+                  }
+             }
+             let first = series[start];
+             let last = series[end-1];
+             println!("first={},last={},small={},large={}",first,last,small,large);
+         }
+         1
     }).collect();
 
     //for row in data.iter() {

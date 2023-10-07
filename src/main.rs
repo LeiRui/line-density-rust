@@ -20,13 +20,13 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32) -> Image {
 
     // draw the time series as a line
     // for x in 0..series.len() - 1 { // TODO x default as regular index?
-    for x in 0..width*k {
+    for x in 0..width*k-1 { // -1 because draw line connecting two points
     // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
-        println!("{}", x/k);
+        println!("{}", x as f32/k as f32);
         draw_line_segment_mut(
             &mut data,
             (x as f32/k as f32, series[x as usize] as f32),
-            ((x as f32 +1)/k as f32, series[x as usize + 1]  as f32),
+            ((x as f32 +1.0)/k as f32, series[x as usize + 1]  as f32),
             Luma([1.0]),
         );
     }

@@ -56,11 +56,11 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
 fn main() {
     let now = Instant::now();
 
-    // let width = 400;
-    // let height = 300;
+    let width = 400;
+    let height = 300;
 
-    let width = 4;
-    let height = 3;
+    //let width = 4;
+    //let height = 3;
 
 
     // parse command line argument
@@ -80,7 +80,7 @@ fn main() {
     }
 
     // create sine wave as a model
-    let model: Vec<f32> = (0..width*2).map(|x| { // note that x is regular
+    let model: Vec<f32> = (0..4*2).map(|x| { // note that x is regular
         let heightf = height as f32;
         let xf = x as f32 * 0.5;
         // println!("xf {}", xf);
@@ -119,16 +119,34 @@ fn main() {
     // M4 downsampling
     // data -> downsampled_data
     data.iter().for_each(|it| {
-             println!("{:#?}", it);
-        })
-    let downsampled_data = data
-        .par_iter()
-        .map(|seris| {
-            series
-        }).collect()
-    downsampled_data.iter().for_each(|it| {
          println!("{:#?}", it);
-        })
+    });
+
+    for row in data.iter() {
+        for pixel in row.iter() {
+            println!("{:#?}", pixel);
+        }
+    }
+
+    //let downsampled_data: Vec<Vec<u32>> = data.iter().map(|series| {
+    //  series.iter().map(|v| {
+    //    let y = v as u32;
+    //    y
+    //  }).collect()
+    //}).collect();
+
+    // iterate each series, extract for each bin (x is regular so can use equi-depth bins)
+
+    //let downsampled_data: Vec<Vec<u32>> = data
+    //    .par_iter()
+    //    .map(|series| {
+    //        series
+    //}).collect();
+
+    //downsampled_data.iter().for_each(|it| {
+    //     println!("{:#?}", it);
+    //});
+
 
     let aggregated = data
         .par_iter()

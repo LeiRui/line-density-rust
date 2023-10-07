@@ -83,6 +83,27 @@ fn main() {
         };
     }
 
+    if args.len() == 3 {
+        iterations = match args[1].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not an integer");
+                return;
+            },
+        };
+        k = match args[2].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not an integer");
+                return;
+            },
+        };
+    }
+
     // create sine wave as a model
     let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
         let heightf = height as f32;

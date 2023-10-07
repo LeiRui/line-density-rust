@@ -149,11 +149,26 @@ fn main() {
              let start = series.len()/w * i;
              let end = series.len()/w * (i+1);
              for j in start..end {
-                 print!("{:#?}", series[j]);
+                 print!("{:#?},", series[j]);
              }
              println!("");
          }
     });
+
+    let data: Vec<u32> = data.iter().map(|series| {
+         // for one series
+         // println!("{:#?}", series);
+         for i in 0..w {
+             // println!("{}", x as f32/k as f32);
+             let start = series.len()/w * i;
+             let end = series.len()/w * (i+1);
+             for j in start..end {
+                 print!("{:#?},", series[j]);
+             }
+             println!("");
+         }
+         i
+    }).collect();
 
     //for row in data.iter() {
     //    for pixel in row.iter() {

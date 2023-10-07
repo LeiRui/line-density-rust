@@ -14,7 +14,7 @@ use std::env;
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
-fn run_series(series: &[u32], width: u32, height: u32, k: f32) -> Image {
+fn run_series(series: &[u32], width: u32, height: u32, k: u32) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
 
@@ -22,6 +22,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: f32) -> Image {
     // for x in 0..series.len() - 1 { // TODO x default as regular index?
     for x in 0..width*k {
     // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
+        println!("{}", x/k);
         draw_line_segment_mut(
             &mut data,
             (x/k as f32, series[x] as f32),
@@ -154,7 +155,7 @@ fn main() {
     let aggregated = data
         .par_iter()
         .map(|series| {
-            run_series(&series, width, height)
+            run_series(&series, width, height, k)
         })
         .reduce(|| Image::new(width, height), sum_images);
 

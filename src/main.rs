@@ -25,8 +25,8 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32) -> Image {
         println!("{}", x/k);
         draw_line_segment_mut(
             &mut data,
-            (x/k, series[x] as f32),
-            ((x+1)/k, series[x + 1]  as f32),
+            (x as f32/k as f32, series[x as usize] as f32),
+            ((x as f32 +1)/k as f32, series[x as usize + 1]  as f32),
             Luma([1.0]),
         );
     }
@@ -86,7 +86,7 @@ fn main() {
     // create sine wave as a model
     let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
         let heightf = height as f32;
-        let xf = x / k;
+        let xf = x as f32 / k as f32;
         // println!("xf {}", xf);
         let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;
         y

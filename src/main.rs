@@ -19,7 +19,7 @@ fn run_series(series: &[u32], width: u32, height: u32) -> Image {
     let mut data = Image::new(width, height);
 
     // draw the time series as a line
-    for x in 0..series.len() - 1 {
+    for x in 0..series.len() - 1 { // TODO x default as regular index?
         draw_line_segment_mut(
             &mut data,
             (x as f32, series[x] as f32),
@@ -56,11 +56,11 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
 fn main() {
     let now = Instant::now();
 
-    let width = 400;
-    let height = 300;
+    // let width = 400;
+    // let height = 300;
 
-    // let width = 4;
-    // let height = 3;
+    let width = 4;
+    let height = 3;
 
 
     // parse command line argument
@@ -80,7 +80,7 @@ fn main() {
     }
 
     // create sine wave as a model
-    let model: Vec<f32> = (0..width*2).map(|x| {
+    let model: Vec<f32> = (0..width*2).map(|x| { // note that x is regular
         let heightf = height as f32;
         let xf = x as f32 * 0.5;
         // println!("xf {}", xf);
@@ -93,8 +93,11 @@ fn main() {
 
     let data: Vec<Vec<u32>> = (0..iterations).map(|_| {
         // add some noise
-        let normal = Normal::new(0.0, 12.0);
+        let normal = Normal::new(0.0, 12.0); // mean 0, standard deviation 12
         let mut rng = rand::thread_rng();
+        // Each thread has an initialized generator.
+        // Integers are uniformly distributed over the range of the type,
+        // and floating point numbers are uniformly distributed from 0 up to but not including 1.
 
         model.iter().map(|v| {
             let value = v + normal.ind_sample(& mut rng) as f32;
@@ -108,8 +111,24 @@ fn main() {
         }).collect()
     }).collect();
 
+
+
     println!("Preparing data took {}s", now.elapsed().as_secs());
     let now = Instant::now();
+
+    // M4 downsampling
+    // data -> downsampled_data
+    data.iter().for_each(|it| {
+             println!("{:#?}", it);
+        })
+    let downsampled_data = data
+        .par_iter()
+        .map(|seris| {
+            series
+        }).collect()
+    downsampled_data.iter().for_each(|it| {
+         println!("{:#?}", it);
+        })
 
     let aggregated = data
         .par_iter()

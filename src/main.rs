@@ -138,20 +138,28 @@ fn main() {
 
 
 
-    println!("Preparing data took {}s", now.elapsed().as_secs());
-    let now = Instant::now();
-
     // M4 downsampling
     // data -> downsampled_data
-    data.iter().for_each(|it| {
-         println!("{:#?}", it);
+    let w = 2; // the number of pixel columns should = width TODO
+    data.iter().for_each(|series| {
+         // for one series
+         // println!("{:#?}", series);
+         for i in 0..w {
+             // println!("{}", x as f32/k as f32);
+             let start = series.len()/w * i;
+             let end = series.len()/w * (i+1);
+             for j in start..end {
+                 print!("{:#?}", series[j]);
+             }
+             println!("");
+         }
     });
 
-    for row in data.iter() {
-        for pixel in row.iter() {
-            println!("{:#?}", pixel);
-        }
-    }
+    //for row in data.iter() {
+    //    for pixel in row.iter() {
+    //        println!("{:#?}", pixel);
+    //    }
+    //}
 
     //let downsampled_data: Vec<Vec<u32>> = data.iter().map(|series| {
     //  series.iter().map(|v| {
@@ -172,6 +180,8 @@ fn main() {
     //     println!("{:#?}", it);
     //});
 
+    println!("Preparing data took {}s", now.elapsed().as_secs());
+    let now = Instant::now();
 
     let aggregated = data
         .par_iter()

@@ -14,16 +14,18 @@ use std::env;
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
-fn run_series(series: &[u32], width: u32, height: u32) -> Image {
+fn run_series(series: &[u32], width: u32, height: u32, k: f32) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
 
     // draw the time series as a line
-    for x in 0..series.len() - 1 { // TODO x default as regular index?
+    // for x in 0..series.len() - 1 { // TODO x default as regular index?
+    for x in 0..width*k {
+    // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
         draw_line_segment_mut(
             &mut data,
-            (x as f32, series[x] as f32),
-            ((x + 1) as f32, series[x + 1]  as f32),
+            (x/k as f32, series[x] as f32),
+            ((x/k + 1) as f32, series[x + 1]  as f32),
             Luma([1.0]),
         );
     }
@@ -58,6 +60,7 @@ fn main() {
 
     let width = 400;
     let height = 300;
+    let k = 2; // regular point count width*k
 
     //let width = 4;
     //let height = 3;
@@ -80,9 +83,9 @@ fn main() {
     }
 
     // create sine wave as a model
-    let model: Vec<f32> = (0..4*2).map(|x| { // note that x is regular
+    let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
         let heightf = height as f32;
-        let xf = x as f32 * 0.5;
+        let xf = x as f32 / k;
         // println!("xf {}", xf);
         let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;
         y

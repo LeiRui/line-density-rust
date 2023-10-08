@@ -20,8 +20,30 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
 
     // draw the time series as a line
     if downsampling {
-      // TODO
+      println!("length:{}", series.len());
       // first, last, small, large
+      for i in 0..width*4-1 { // M4 downsampling
+      // -1 because draw line connecting two points
+      // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
+          if i % 4 == 3 {
+          // the last point in a column, need align, because 3/4 != 9/10,
+          // but first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column,
+          // so only last point needs alignment
+             let j = (i / 4 + 1 ) * k - 1; // e.g., k=10, i=3, j=9
+             let x = j as f32 / k as f32; // e.g., x=9/10 rather than 3/4
+          }
+          else {
+          // first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column
+             let x = i as f32 / 4.0;
+          }
+
+          draw_line_segment_mut(
+              &mut data,
+              (x, series[i as usize] as f32),
+              ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
+              Luma([1.0]),
+          );
+      }
     }
     else {
       for x in 0..width*k-1 {
@@ -29,8 +51,8 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
       // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
           draw_line_segment_mut(
               &mut data,
-              (x as f32/k as f32, series[x as usize] as f32),
-              ((x as f32 +1.0)/k as f32, series[x as usize + 1]  as f32),
+              (x as f32 / k as f32, series[x as usize] as f32),
+              ((x as f32 + 1.0) / k as f32, series[x as usize + 1]  as f32),
               Luma([1.0]),
           );
       }
@@ -66,7 +88,7 @@ fn main() {
 
     let width = 400;
     let height = 300;
-    let mut k = 2; // regular point count = width*k
+    let mut k = 4; // regular point count = width*k
     let mut downsampling = true;
 
     // parse command line argument
@@ -174,12 +196,9 @@ fn main() {
 
     // M4 downsampling
     // data -> downsampled_data
-    let w = 2; // the number of pixel columns should = width TODO
+    let w = width; // the number of pixel columns should = width
     if downsampling {
-        let tmp: Vec<Vec<u32>> = data.iter().map(|series| {
-             // for one series
-             // println!("{:#?}", series);
-             // for i in 0..w {
+        let tmp: Vec<Vec<u32>> = data.iter().map(|series| { // for one series
              let mut res: Vec<u32> = Vec::new();
              for i in 0..w {
              // (0..w).map(|i| {
@@ -207,12 +226,11 @@ fn main() {
              //}).collect()
              res
         }).collect();
-        for row in tmp.iter() {
-            for pixel in row.iter() {
-                println!("{:#?}", pixel);
-            }
-        }
-
+        //for row in tmp.iter() {
+            //for pixel in row.iter() {
+                //println!("{:#?}", pixel);
+            //}
+        //}
         data = tmp;
     }
 
@@ -259,5 +277,5 @@ fn main() {
         }
     }
 
-    img.save("output.png").unwrap();
+    img.save(format!("output-{}-{}-{}.png", iterations, width*k, downsampling)).unwrap();
 }

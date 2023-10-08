@@ -92,7 +92,7 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
     aggregated
 }
 
-fn main() { // iterations,k,width
+fn main() { // arguments: iterations,k,width
     let mut width = 400;
     let mut k = 4; // regular point count = width*k
     // let mut downsampling = true;
@@ -101,28 +101,18 @@ fn main() { // iterations,k,width
     let args: Vec<_> = env::args().collect();
     let mut iterations = 100; // number of time series
 
-    if args.len() == 2 {
-        iterations = match args[1].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not an integer");
-                return;
-            },
-        };
+    if args.len() > 1 {
+            iterations = match args[1].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument not an integer");
+                    return;
+                },
+            };
     }
-
-    if args.len() == 3 {
-        iterations = match args[1].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not an integer");
-                return;
-            },
-        };
+    if args.len() > 2 {
         k = match args[2].parse() {
             Ok(n) => {
                 n
@@ -133,26 +123,7 @@ fn main() { // iterations,k,width
             },
         };
     }
-
-    if args.len() == 4 {
-        iterations = match args[1].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not an integer");
-                return;
-            },
-        };
-        k = match args[2].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not an integer");
-                return;
-            },
-        };
+    if args.len() > 3 {
         width = match args[3].parse() {
             Ok(n) => {
                 n

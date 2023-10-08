@@ -25,7 +25,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
       for i in 0..width*4-1 { // M4 downsampling
       // -1 because draw line connecting two points
       // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
-          let mut x = 0;
+          let mut x = 0.0;
           if i % 4 == 3 {
           // the last point in a column, need align, because 3/4 != 9/10,
           // but first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column,

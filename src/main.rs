@@ -178,7 +178,7 @@ fn main() { // iterations,k,width
         y
     }).collect();
 
-    let mut data: Vec<Vec<u32>> = (0..iterations).map(|_| {
+    let data: Vec<Vec<u32>> = (0..iterations).map(|_| {
         // add some noise
         let normal = Normal::new(0.0, 12.0); // mean 0, standard deviation 12
         let mut rng = rand::thread_rng();
@@ -226,9 +226,9 @@ fn main() { // iterations,k,width
              let last = series[end-1];
              println!("first={},last={},small={},large={}",first,last,small,large);
              res.push(first);
-             res.push(last);
              res.push(small);
              res.push(large);
+             res.push(last); // note this is the last
          }
          //}).collect()
          res
@@ -247,9 +247,9 @@ fn main() { // iterations,k,width
 
     // ------------------------- test original -------------------------
     let mut downsampling = false;
-    let mut inputData: Vec<Vec<u32>> = data;
+    let mut input_data: Vec<Vec<u32>> = data;
     let mut now = Instant::now();
-    let mut aggregated = inputData
+    let mut aggregated = input_data
         .par_iter()
         .map(|series| {
             run_series(&series, width as u32, height as u32, k as u32, downsampling)
@@ -287,9 +287,9 @@ fn main() { // iterations,k,width
 
     // ------------------------- test downsampled -------------------------
     downsampling = true;
-    inputData: Vec<Vec<u32>> = downsamples;
+    input_data = downsamples;
     now = Instant::now();
-    aggregated = inputData
+    aggregated = input_data
         .par_iter()
         .map(|series| {
             run_series(&series, width as u32, height as u32, k as u32, downsampling)

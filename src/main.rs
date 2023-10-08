@@ -17,33 +17,36 @@ type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: bool) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
+    println!("length:{}", series.len());
 
     // draw the time series as a line
     if downsampling {
-      println!("length:{}", series.len());
       // first, last, small, large
       for i in 0..width*4-1 { // M4 downsampling
       // -1 because draw line connecting two points
       // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
-          let mut x: f32 = 0;
           if i % 4 == 3 {
           // the last point in a column, need align, because 3/4 != 9/10,
           // but first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column,
           // so only last point needs alignment
-             let j = (i / 4 + 1 ) * k - 1; // e.g., k=10, i=3, j=9
-             x = j as f32 / k as f32; // e.g., x=9/10 rather than 3/4
+              let j = (i / 4 + 1 ) * k - 1; // e.g., k=10, i=3, j=9
+              let x = j as f32 / k as f32; // e.g., x=9/10 rather than 3/4
+              draw_line_segment_mut(
+                 &mut data,
+                 (x, series[i as usize] as f32),
+                 ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
+                 Luma([1.0]),
+              );
           }
           else {
           // first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column
-             x = i as f32 / 4.0;
+              draw_line_segment_mut(
+                  &mut data,
+                  (i as f32 / 4.0, series[i as usize] as f32),
+                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
+                  Luma([1.0]),
+              );
           }
-
-          draw_line_segment_mut(
-              &mut data,
-              (x, series[i as usize] as f32),
-              ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
-              Luma([1.0]),
-          );
       }
     }
     else {

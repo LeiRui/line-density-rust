@@ -37,6 +37,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
                  Luma([1.0]),
               );
+              println!("({},{}),({},{}),",x,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
               // https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html
               // Uses Bresenham’s line drawing algorithm.
           }
@@ -48,6 +49,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
                   ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
                   Luma([1.0]),
               );
+              println!("({},{}),({},{}),",i as f32 / 4.0,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
           }
       }
     }
@@ -58,9 +60,10 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
           draw_line_segment_mut(
               &mut data,
               (x as f32 / k as f32, series[x as usize] as f32),
-              ((x as f32 + 1.0) / k as f32, series[x as usize + 1]  as f32),
+              ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
               Luma([1.0]),
           );
+          println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],x as f32 + 1.0) / k as f32,series[x as usize + 1]);
       }
     }
 
@@ -239,8 +242,8 @@ fn main() { // iterations,k,downsampling,width
 
     // M4 downsampling
     // data -> downsampled_data
-    // let w = width;
-    let w:u32 = 2; // the number of pixel columns should = width
+    let w = width;
+    // let w:u32 = 2; // the number of pixel columns should = width
     if downsampling {
         let tmp: Vec<Vec<u32>> = data.iter().map(|series| { // for one series
              let mut res: Vec<u32> = Vec::new();

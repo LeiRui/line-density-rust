@@ -11,6 +11,7 @@ use palette::{Lab, LinSrgb, Gradient};
 use rayon::prelude::*;
 use std::time::Instant;
 use std::env;
+use csv::ReaderBuilder;
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
@@ -93,15 +94,16 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
 }
 
 fn main() {
-    // arguments: iterations,k,width,height,use_external_data,csv_dir_path
-    // 100,10,400,300,false
-    // 2,10,400,300,true,"/home/data"
+    // arguments: iterations,k,width,height,use_external_data,csv_dir_path,has_header
+    // synthetic: 100,10,400,300
+    // real: 2,10,400,300,true,"/home/data",true
     let mut iterations = 100; // number of time series
     let mut k = 4; // regular point count = width*k
     let mut width = 400;
     let height; // if not set, default = width
     let mut use_external_data = false;
     let mut csv_dir_path = String::from("None");
+    let mut has_header = false;
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
@@ -164,8 +166,17 @@ fn main() {
         };
     }
     if use_external_data {
-        if args.len() > 6 {
+        if args.len() > 7 {
             csv_dir_path = match args[6].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument not a string");
+                    return;
+                },
+            };
+            has_header = match args[7].parse() {
                 Ok(n) => {
                     n
                 },
@@ -176,20 +187,21 @@ fn main() {
             };
         }
         else {
-            println!("error: missing csv_dir_path");
+            println!("error: missing csv_dir_path, has_header");
             return;
         }
     }
 
-    // arguments: iterations,k,width,height,use_external_data,csv_dir_path
+    // arguments: iterations,k,width,height,use_external_data,csv_dir_path,has_header
     println!("number of time series: {}", iterations);
     println!("number of points in a time series: {}", width*k);
     println!("width: {}, height: {}", width, height);
     println!("use_external_data: {}", use_external_data);
     println!("csv_dir_path: {}", csv_dir_path);
-    println!("=============================================", csv_dir_path);
+    println!("has_header: {}", has_header);
+    println!("=============================================");
 
-    let data;
+    let data:Vec<Vec<u32>>;
     if !use_external_data {
         // create sine wave as a model
         let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
@@ -199,7 +211,7 @@ fn main() {
             y
         }).collect();
 
-        data: Vec<Vec<u32>> = (0..iterations).map(|_| {
+        data = (0..iterations).map(|_| {
             // add some noise
             let normal = Normal::new(0.0, 12.0); // mean 0, standard deviation 12
             let mut rng = rand::thread_rng();
@@ -220,9 +232,43 @@ fn main() {
         }).collect();
     }
     else {
-        // TODO read iterations csv files from csv_dir_path, for each csv read the first width*k points
+        // TODO read iterations csv files from csv_dir_path,
+        // for each csv read the first width*k points,
+        // only read the second column as values, as timestamps are regular (0..width*k)/k
+        data = Vec::new();
+        // TODO read csv file from csv_dir_path
+        let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(csv_dir_path);
+        let reader = match reader_result {
+            Ok(reader) => reader,
+            Err(err) => return Err(Box::new(err)),
+        };
+        let mut cnt = 0;
+        for record in reader.into_records() {
+            let record = match record {
+                Ok(record) => record,
+                Err(err) => {
+                    if flag_ignore_error {
+                        continue;
+                      } else {
+                          return Err(Box::new(err));
+                      }
+                }
+            };
 
-    }
+            let row: Vec<String> = record
+                    .iter()
+                    .map(|field| field.trim().to_string())
+                    .collect();
+
+            // data.push(row);
+            println!("{:?}", row);
+
+            if cnt >= width*k {
+                break;
+            }
+        } // for loop
+
+    }// else end
 
     // M4 downsampling
     // data -> downsampled_data

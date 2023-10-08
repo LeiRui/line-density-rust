@@ -173,7 +173,6 @@ fn main() { // iterations,k,width
     let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
         let heightf = height as f32;
         let xf = x as f32 / k as f32;
-        // println!("xf {}", xf);
         let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;
         y
     }).collect();

@@ -62,6 +62,7 @@ fn main() {
     let width = 400;
     let height = 300;
     let mut k = 2; // regular point count = width*k
+    let mut downsampling = true;
 
     //let width = 4;
     //let height = 3;
@@ -104,6 +105,47 @@ fn main() {
         };
     }
 
+    if args.len() == 4 {
+            iterations = match args[1].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument not an integer");
+                    return;
+                },
+            };
+            k = match args[2].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument not an integer");
+                    return;
+                },
+            };
+            downsampling = match args[3].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument not an integer");
+                    return;
+                },
+            };
+        }
+
+    println!("width: {}, height: {}", width, height);
+    println!("number of time series: {}", iterations);
+    println!("number of points in a time series: {}", width*k);
+    if downsampling {
+        println!("true");
+    }
+    else {
+        println!("false");
+    };
+
+
     // create sine wave as a model
     let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
         let heightf = height as f32;
@@ -112,10 +154,6 @@ fn main() {
         let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;
         y
     }).collect();
-
-    // get the length
-    println!("number of points in a time series: {}", model.len());
-    println!("number of time series: {}", iterations);
 
     let data: Vec<Vec<u32>> = (0..iterations).map(|_| {
         // add some noise

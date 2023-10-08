@@ -14,21 +14,26 @@ use std::env;
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
-fn run_series(series: &[u32], width: u32, height: u32, k: u32) -> Image {
+fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: bool) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
 
     // draw the time series as a line
-    // for x in 0..series.len() - 1 { // TODO x default as regular index?
-    for x in 0..width*k-1 { // -1 because draw line connecting two points
-    // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
-        // println!("{}", x as f32/k as f32);
-        draw_line_segment_mut(
-            &mut data,
-            (x as f32/k as f32, series[x as usize] as f32),
-            ((x as f32 +1.0)/k as f32, series[x as usize + 1]  as f32),
-            Luma([1.0]),
-        );
+    if downsampling {
+      // TODO
+      // first, last, small, large
+    }
+    else {
+      for x in 0..width*k-1 {
+      // -1 because draw line connecting two points
+      // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
+          draw_line_segment_mut(
+              &mut data,
+              (x as f32/k as f32, series[x as usize] as f32),
+              ((x as f32 +1.0)/k as f32, series[x as usize + 1]  as f32),
+              Luma([1.0]),
+          );
+      }
     }
 
     // normalize
@@ -63,10 +68,6 @@ fn main() {
     let height = 300;
     let mut k = 2; // regular point count = width*k
     let mut downsampling = true;
-
-    //let width = 4;
-    //let height = 3;
-
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
@@ -138,12 +139,7 @@ fn main() {
     println!("width: {}, height: {}", width, height);
     println!("number of time series: {}", iterations);
     println!("number of points in a time series: {}", width*k);
-    if downsampling {
-        println!("true");
-    }
-    else {
-        println!("false");
-    };
+    println!("downsampling: {}", downsampling);
 
 
     // create sine wave as a model
@@ -176,60 +172,48 @@ fn main() {
     }).collect();
 
 
-
     // M4 downsampling
     // data -> downsampled_data
     let w = 2; // the number of pixel columns should = width TODO
-    //data.iter().for_each(|series| {
-         // for one series
-         // println!("{:#?}", series);
-         //for i in 0..w {
-             // println!("{}", x as f32/k as f32);
-             //let start = series.len()/w * i;
-             //let end = series.len()/w * (i+1);
-             //for j in start..end {c
-             //    print!("{},", series[j]);
-             //}
-             //println!("");
-         //}
-    //});
-
-    let tmp: Vec<Vec<u32>> = data.iter().map(|series| {
-         // for one series
-         // println!("{:#?}", series);
-         // for i in 0..w {
-         let mut res: Vec<u32> = Vec::new();
-         for i in 0..w {
-         // (0..w).map(|i| {
-             // println!("{}", x as f32/k as f32);
-             let start = series.len()/w * i;
-             let end = series.len()/w * (i+1);
-             let mut large: u32 = 0; // note value range [0,height]
-             let mut small: u32 = height+1; // note value range [0,height]
-             for j in start..end {
-                  if large < series[j] {
-                      large = series[j]
-                  }
-                  if small > series[j] {
-                      small = series[j]
-                  }
+    if downsampling {
+        let tmp: Vec<Vec<u32>> = data.iter().map(|series| {
+             // for one series
+             // println!("{:#?}", series);
+             // for i in 0..w {
+             let mut res: Vec<u32> = Vec::new();
+             for i in 0..w {
+             // (0..w).map(|i| {
+                 // println!("{}", x as f32/k as f32);
+                 let start = series.len()/w * i;
+                 let end = series.len()/w * (i+1);
+                 let mut large: u32 = 0; // note value range [0,height]
+                 let mut small: u32 = height+1; // note value range [0,height]
+                 for j in start..end {
+                      if large < series[j] {
+                          large = series[j]
+                      }
+                      if small > series[j] {
+                          small = series[j]
+                      }
+                 }
+                 let first = series[start];
+                 let last = series[end-1];
+                 println!("first={},last={},small={},large={}",first,last,small,large);
+                 res.push(first);
+                 res.push(last);
+                 res.push(small);
+                 res.push(large);
              }
-             let first = series[start];
-             let last = series[end-1];
-             println!("first={},last={},small={},large={}",first,last,small,large);
-             res.push(first);
-             res.push(last);
-             res.push(small);
-             res.push(large);
-         }
-         //}).collect()
-         res
-    }).collect();
-
-    for row in tmp.iter() {
-        for pixel in row.iter() {
-            println!("{:#?}", pixel);
+             //}).collect()
+             res
+        }).collect();
+        for row in tmp.iter() {
+            for pixel in row.iter() {
+                println!("{:#?}", pixel);
+            }
         }
+
+        data = tmp;
     }
 
     println!("Preparing data took {}s", now.elapsed().as_secs());

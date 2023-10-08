@@ -87,11 +87,10 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
     aggregated
 }
 
-fn main() {
+fn main() { // iterations,k,downsampling,width
     let now = Instant::now();
 
-    let width = 400;
-    let height = 300;
+    let mut width = 400;
     let mut k = 4; // regular point count = width*k
     let mut downsampling = true;
 
@@ -133,35 +132,75 @@ fn main() {
     }
 
     if args.len() == 4 {
-            iterations = match args[1].parse() {
-                Ok(n) => {
-                    n
-                },
-                Err(_) => {
-                    println!("error: argument not an integer");
-                    return;
-                },
-            };
-            k = match args[2].parse() {
-                Ok(n) => {
-                    n
-                },
-                Err(_) => {
-                    println!("error: argument not an integer");
-                    return;
-                },
-            };
-            downsampling = match args[3].parse() {
-                Ok(n) => {
-                    n
-                },
-                Err(_) => {
-                    println!("error: argument not an integer");
-                    return;
-                },
-            };
-        }
+        iterations = match args[1].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not an integer");
+                return;
+            },
+        };
+        k = match args[2].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not an integer");
+                return;
+            },
+        };
+        downsampling = match args[3].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not an integer");
+                return;
+            },
+        };
+    }
 
+    if args.len() == 5 {
+      iterations = match args[1].parse() {
+          Ok(n) => {
+              n
+          },
+          Err(_) => {
+              println!("error: argument not an integer");
+              return;
+          },
+      };
+      k = match args[2].parse() {
+          Ok(n) => {
+              n
+          },
+          Err(_) => {
+              println!("error: argument not an integer");
+              return;
+          },
+      };
+      downsampling = match args[3].parse() {
+          Ok(n) => {
+              n
+          },
+          Err(_) => {
+              println!("error: argument not an integer");
+              return;
+          },
+      };
+      width = match args[4].parse() {
+          Ok(n) => {
+              n
+          },
+          Err(_) => {
+              println!("error: argument not an integer");
+              return;
+          },
+      };
+    }
+
+    let height = width;
     println!("width: {}, height: {}", width, height);
     println!("number of time series: {}", iterations);
     println!("number of points in a time series: {}", width*k);
@@ -218,12 +257,12 @@ fn main() {
                       if small > series[j] {
                           small = series[j]
                       }
-                      print!("{},",series[j]);
+                      // print!("{},",series[j]);
                  }
-                 println!("");
+                 // println!("");
                  let first = series[start];
                  let last = series[end-1];
-                 println!("first={},last={},small={},large={}",first,last,small,large);
+                 // println!("first={},last={},small={},large={}",first,last,small,large);
                  res.push(first);
                  res.push(last);
                  res.push(small);

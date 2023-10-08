@@ -99,7 +99,7 @@ fn main() {
     let mut iterations = 100; // number of time series
     let mut k = 4; // regular point count = width*k
     let mut width = 400;
-    let mut height; // if not set, default = width
+    let height; // if not set, default = width
     let mut use_external_data = false;
     let mut csv_dir_path = String::from("None");
 
@@ -164,22 +164,27 @@ fn main() {
         };
     }
     if use_external_data {
-        csv_dir_path = match args[6].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not a string");
-                return;
-            },
-        };
+        if args.len() > 6 {
+            csv_dir_path = match args[6].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument not a string");
+                    return;
+                },
+            };
+        }
+        else {
+            println!("error: missing csv_dir_path");
+            return;
+        }
     }
 
     // arguments: iterations,k,width,height,use_external_data,csv_dir_path
     println!("number of time series: {}", iterations);
     println!("number of points in a time series: {}", width*k);
     println!("width: {}, height: {}", width, height);
-    println!("number of points in a time series: {}", width*k);
     println!("use_external_data: {}", use_external_data);
     println!("csv_dir_path: {}", csv_dir_path);
 

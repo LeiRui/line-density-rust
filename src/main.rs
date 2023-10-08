@@ -246,8 +246,8 @@ fn main() { // iterations,k,downsampling,width
              for i in 0..w {
              // (0..w).map(|i| {
                  // println!("{}", x as f32/k as f32);
-                 let start = series.len()/w * i;
-                 let end = series.len()/w * (i+1);
+                 let start = series.len()/w as usize * i;
+                 let end = series.len()/w as usize * (i+1);
                  let mut large: u32 = 0; // note value range [0,height]
                  let mut small: u32 = height+1; // note value range [0,height]
                  for j in start..end {

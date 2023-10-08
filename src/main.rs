@@ -151,7 +151,7 @@ fn main() {
         y
     }).collect();
 
-    let data: Vec<Vec<u32>> = (0..iterations).map(|_| {
+    let mut data: Vec<Vec<u32>> = (0..iterations).map(|_| {
         // add some noise
         let normal = Normal::new(0.0, 12.0); // mean 0, standard deviation 12
         let mut rng = rand::thread_rng();
@@ -222,7 +222,7 @@ fn main() {
     let aggregated = data
         .par_iter()
         .map(|series| {
-            run_series(&series, width, height, k)
+            run_series(&series, width, height, k, downsampling)
         })
         .reduce(|| Image::new(width, height), sum_images);
 

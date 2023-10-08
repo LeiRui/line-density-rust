@@ -3,6 +3,7 @@ extern crate imageproc;
 extern crate rand;
 extern crate palette;
 extern crate rayon;
+extern crate csv;
 
 use image::{Luma, ImageBuffer, RgbImage};
 use imageproc::drawing::{draw_line_segment_mut};
@@ -247,11 +248,7 @@ fn main() {
             let record = match record {
                 Ok(record) => record,
                 Err(err) => {
-                    if flag_ignore_error {
-                        continue;
-                      } else {
-                          return Err(Box::new(err));
-                      }
+                    return Err(Box::new(err));
                 }
             };
 

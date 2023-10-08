@@ -141,24 +141,25 @@ fn main() {
     // M4 downsampling
     // data -> downsampled_data
     let w = 2; // the number of pixel columns should = width TODO
-    data.iter().for_each(|series| {
+    //data.iter().for_each(|series| {
          // for one series
          // println!("{:#?}", series);
-         for i in 0..w {
+         //for i in 0..w {
              // println!("{}", x as f32/k as f32);
-             let start = series.len()/w * i;
-             let end = series.len()/w * (i+1);
-             for j in start..end {c
-                 print!("{},", series[j]);
-             }
-             println!("");
-         }
-    });
+             //let start = series.len()/w * i;
+             //let end = series.len()/w * (i+1);
+             //for j in start..end {c
+             //    print!("{},", series[j]);
+             //}
+             //println!("");
+         //}
+    //});
 
     let tmp: Vec<u32> = data.iter().map(|series| {
          // for one series
          // println!("{:#?}", series);
-         for i in 0..w {
+         // for i in 0..w {
+         (0..w).map(|i| {
              // println!("{}", x as f32/k as f32);
              let start = series.len()/w * i;
              let end = series.len()/w * (i+1);
@@ -175,15 +176,15 @@ fn main() {
              let first = series[start];
              let last = series[end-1];
              println!("first={},last={},small={},large={}",first,last,small,large);
-         }
-         1
+             first
+         }).collect()
     }).collect();
 
-    //for row in data.iter() {
-    //    for pixel in row.iter() {
-    //        println!("{:#?}", pixel);
-    //    }
-    //}
+    for row in tmp.iter() {
+        for pixel in row.iter() {
+            println!("{:#?}", pixel);
+        }
+    }
 
     println!("Preparing data took {}s", now.elapsed().as_secs());
     let now = Instant::now();

@@ -63,7 +63,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
               ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
               Luma([1.0]),
           );
-          println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],x as f32 + 1.0) / k as f32,series[x as usize + 1]);
+          println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
       }
     }
 
@@ -92,10 +92,10 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
     aggregated
 }
 
-fn main() { // iterations,k,downsampling,width
+fn main() { // iterations,k,width
     let mut width = 400;
     let mut k = 4; // regular point count = width*k
-    let mut downsampling = true;
+    // let mut downsampling = true;
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
@@ -153,7 +153,7 @@ fn main() { // iterations,k,downsampling,width
                 return;
             },
         };
-        downsampling = match args[3].parse() {
+        width = match args[3].parse() {
             Ok(n) => {
                 n
             },
@@ -164,51 +164,10 @@ fn main() { // iterations,k,downsampling,width
         };
     }
 
-    if args.len() == 5 {
-      iterations = match args[1].parse() {
-          Ok(n) => {
-              n
-          },
-          Err(_) => {
-              println!("error: argument not an integer");
-              return;
-          },
-      };
-      k = match args[2].parse() {
-          Ok(n) => {
-              n
-          },
-          Err(_) => {
-              println!("error: argument not an integer");
-              return;
-          },
-      };
-      downsampling = match args[3].parse() {
-          Ok(n) => {
-              n
-          },
-          Err(_) => {
-              println!("error: argument not an integer");
-              return;
-          },
-      };
-      width = match args[4].parse() {
-          Ok(n) => {
-              n
-          },
-          Err(_) => {
-              println!("error: argument not an integer");
-              return;
-          },
-      };
-    }
-
     let height = width;
     println!("width: {}, height: {}", width, height);
     println!("number of time series: {}", iterations);
     println!("number of points in a time series: {}", width*k);
-    println!("downsampling: {}", downsampling);
-
 
     // create sine wave as a model
     let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
@@ -244,55 +203,41 @@ fn main() { // iterations,k,downsampling,width
     // data -> downsampled_data
     let w = width;
     // let w:u32 = 2; // the number of pixel columns should = width
-    if downsampling {
-        let tmp: Vec<Vec<u32>> = data.iter().map(|series| { // for one series
-             let mut res: Vec<u32> = Vec::new();
-             for i in 0..w {
-             // (0..w).map(|i| {
-                 // println!("{}", x as f32/k as f32);
-                 let start = series.len()/w as usize * i as usize;
-                 let end = series.len()/w as usize * (i+1) as usize;
-                 let mut large: u32 = 0; // note value range [0,height]
-                 let mut small: u32 = height+1; // note value range [0,height]
-                 for j in start..end {
-                      if large < series[j] {
-                          large = series[j]
-                      }
-                      if small > series[j] {
-                          small = series[j]
-                      }
-                      // print!("{},",series[j]);
-                 }
-                 // println!("");
-                 let first = series[start];
-                 let last = series[end-1];
-                 // println!("first={},last={},small={},large={}",first,last,small,large);
-                 res.push(first);
-                 res.push(last);
-                 res.push(small);
-                 res.push(large);
+    let downsamples: Vec<Vec<u32>> = data.iter().map(|series| { // for one series
+         let mut res: Vec<u32> = Vec::new();
+         for i in 0..w {
+         // (0..w).map(|i| {
+             // println!("{}", x as f32/k as f32);
+             let start = series.len()/w as usize * i as usize;
+             let end = series.len()/w as usize * (i+1) as usize;
+             let mut large: u32 = 0; // note value range [0,height]
+             let mut small: u32 = height+1; // note value range [0,height]
+             for j in start..end {
+                  if large < series[j] {
+                      large = series[j]
+                  }
+                  if small > series[j] {
+                      small = series[j]
+                  }
+                  // print!("{},",series[j]);
              }
-             //}).collect()
-             res
-        }).collect();
-        //for row in tmp.iter() {
-            //for pixel in row.iter() {
-                //println!("{:#?}", pixel);
-            //}
+             // println!("");
+             let first = series[start];
+             let last = series[end-1];
+             println!("first={},last={},small={},large={}",first,last,small,large);
+             res.push(first);
+             res.push(last);
+             res.push(small);
+             res.push(large);
+         }
+         //}).collect()
+         res
+    }).collect();
+    //for row in tmp.iter() {
+        //for pixel in row.iter() {
+            //println!("{:#?}", pixel);
         //}
-        data = tmp;
-    }
-
-    let now = Instant::now();
-
-    let aggregated = data
-        .par_iter()
-        .map(|series| {
-            run_series(&series, width as u32, height as u32, k as u32, downsampling)
-        })
-        .reduce(|| Image::new(width as u32, height as u32), sum_images);
-
-    println!("Computing line density took {}ms", now.elapsed().as_millis());
+    //}
 
     // color scale to convert from value to a color
     let color_scale = Gradient::new(vec![
@@ -300,10 +245,63 @@ fn main() { // iterations,k,downsampling,width
         Lab::from(LinSrgb::new_u8(14, 66, 127))
     ]);
 
+    // ------------------------- test original -------------------------
+    let mut downsampling = false;
+    let mut inputData: Vec<Vec<u32>> = data;
+    let mut now = Instant::now();
+    let mut aggregated = inputData
+        .par_iter()
+        .map(|series| {
+            run_series(&series, width as u32, height as u32, k as u32, downsampling)
+        })
+        .reduce(|| Image::new(width as u32, height as u32), sum_images);
+
+    println!("Downsampling:{}, Computing line density took {}ms", downsampling, now.elapsed().as_millis());
+
     let mut img = RgbImage::new(width as u32, height as u32);
 
     // find the maximum value so that we can scale colors
-    let max_value = aggregated.pixels().fold(
+    let mut max_value = aggregated.pixels().fold(
+        0.0,
+        |max,pixel| f32::max(max, pixel[0])
+    );
+
+    // create output image
+    for (x, y, pixel) in aggregated.enumerate_pixels() {
+        let value = pixel[0];
+        if value == 0.0 {
+            img.put_pixel(x,y,image::Rgb([255,255,255]));
+        } else {
+            let color = LinSrgb::from(color_scale.get(value / max_value));
+            let converted_color = image::Rgb([
+                (color.red * 255.0).round() as u8,
+                (color.green * 255.0).round() as u8,
+                (color.blue * 255.0).round() as u8]
+            );
+
+            img.put_pixel(x,y,converted_color);
+        }
+    }
+
+    img.save(format!("output-{}-{}-{}-{}.png", iterations, k, downsampling, width)).unwrap();
+
+    // ------------------------- test downsampled -------------------------
+    downsampling = true;
+    inputData: Vec<Vec<u32>> = downsamples;
+    now = Instant::now();
+    aggregated = inputData
+        .par_iter()
+        .map(|series| {
+            run_series(&series, width as u32, height as u32, k as u32, downsampling)
+        })
+        .reduce(|| Image::new(width as u32, height as u32), sum_images);
+
+    println!("Downsampling:{}, Computing line density took {}ms", downsampling, now.elapsed().as_millis());
+
+    img = RgbImage::new(width as u32, height as u32);
+
+    // find the maximum value so that we can scale colors
+    max_value = aggregated.pixels().fold(
         0.0,
         |max,pixel| f32::max(max, pixel[0])
     );

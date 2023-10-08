@@ -93,11 +93,15 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
 }
 
 fn main() {
-    // arguments: iterations,k,width,height
+    // arguments: iterations,k,width,height,use_external_data,csv_dir_path
+    // 100,10,400,300,false
+    // 2,10,400,300,true,"/home/data"
     let mut iterations = 100; // number of time series
     let mut k = 4; // regular point count = width*k
     let mut width = 400;
     let mut height = width;
+    let mut use_external_data = false;
+    let mut csv_dir_path = String::from("None");
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
@@ -148,10 +152,36 @@ fn main() {
     else {
         height = width;
     }
+    if args.len() > 5 {
+        use_external_data = match args[5].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not a bool");
+                return;
+            },
+        };
+    }
+    if use_external_data {
+        csv_dir_path = match args[6].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not a string");
+                return;
+            },
+        };
+    }
 
-    println!("width: {}, height: {}", width, height);
+    // arguments: iterations,k,width,height,use_external_data,csv_dir_path
     println!("number of time series: {}", iterations);
     println!("number of points in a time series: {}", width*k);
+    println!("width: {}, height: {}", width, height);
+    println!("number of points in a time series: {}", width*k);
+    println!("use_external_data: {}", use_external_data);
+    println!("csv_dir_path: {}", csv_dir_path);
 
     // create sine wave as a model
     let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular

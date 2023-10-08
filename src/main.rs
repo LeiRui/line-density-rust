@@ -99,7 +99,6 @@ fn main() {
     let mut iterations = 100; // number of time series
     let mut k = 4; // regular point count = width*k
     let mut width = 400;
-    let mut height = width;
     let mut use_external_data = false;
     let mut csv_dir_path = String::from("None");
 
@@ -138,8 +137,8 @@ fn main() {
             },
         };
     }
-    if args.len() > 4 {
-        height = match args[4].parse() {
+    let mut height = if args.len() > 4 {
+        match args[4].parse() {
             Ok(n) => {
                 n
             },
@@ -150,7 +149,7 @@ fn main() {
         };
     }
     else {
-        height = width;
+        width;
     }
     if args.len() > 5 {
         use_external_data = match args[5].parse() {

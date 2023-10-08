@@ -17,7 +17,7 @@ type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: bool) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
-    println!("length:{}", series.len());
+    // println!("length:{}", series.len());
 
     // draw the time series as a line
     if downsampling {
@@ -37,7 +37,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
                  Luma([1.0]),
               );
-              println!("({},{}),({},{}),",x,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
+              // println!("({},{}),({},{}),",x,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
               // https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html
               // Uses Bresenham’s line drawing algorithm.
           }
@@ -49,7 +49,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
                   ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
                   Luma([1.0]),
               );
-              println!("({},{}),({},{}),",i as f32 / 4.0,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
+              // println!("({},{}),({},{}),",i as f32 / 4.0,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
           }
       }
     }
@@ -63,7 +63,7 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
               ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
               Luma([1.0]),
           );
-          println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
+          // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
       }
     }
 
@@ -224,7 +224,7 @@ fn main() { // iterations,k,width
              // println!("");
              let first = series[start];
              let last = series[end-1];
-             println!("first={},last={},small={},large={}",first,last,small,large);
+             // println!("first={},last={},small={},large={}",first,last,small,large);
              res.push(first);
              res.push(small);
              res.push(large);

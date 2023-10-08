@@ -37,6 +37,8 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
                  Luma([1.0]),
               );
+              // https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html
+              // Uses Bresenham’s line drawing algorithm.
           }
           else {
           // first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column
@@ -88,8 +90,6 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
 }
 
 fn main() { // iterations,k,downsampling,width
-    let now = Instant::now();
-
     let mut width = 400;
     let mut k = 4; // regular point count = width*k
     let mut downsampling = true;
@@ -239,15 +239,16 @@ fn main() { // iterations,k,downsampling,width
 
     // M4 downsampling
     // data -> downsampled_data
-    let w = width; // the number of pixel columns should = width
+    // let w = width;
+    let w:u32 = 2; // the number of pixel columns should = width
     if downsampling {
         let tmp: Vec<Vec<u32>> = data.iter().map(|series| { // for one series
              let mut res: Vec<u32> = Vec::new();
              for i in 0..w {
              // (0..w).map(|i| {
                  // println!("{}", x as f32/k as f32);
-                 let start = series.len()/w as usize * i;
-                 let end = series.len()/w as usize * (i+1);
+                 let start = series.len()/w as usize * i as usize;
+                 let end = series.len()/w as usize * (i+1) as usize;
                  let mut large: u32 = 0; // note value range [0,height]
                  let mut small: u32 = height+1; // note value range [0,height]
                  for j in start..end {
@@ -279,7 +280,6 @@ fn main() { // iterations,k,downsampling,width
         data = tmp;
     }
 
-    println!("Preparing data took {}s", now.elapsed().as_secs());
     let now = Instant::now();
 
     let aggregated = data
@@ -289,7 +289,7 @@ fn main() { // iterations,k,downsampling,width
         })
         .reduce(|| Image::new(width as u32, height as u32), sum_images);
 
-    println!("Computing line density took {}s", now.elapsed().as_secs());
+    println!("Computing line density took {}ms", now.elapsed().as_millis());
 
     // color scale to convert from value to a color
     let color_scale = Gradient::new(vec![
@@ -322,5 +322,5 @@ fn main() { // iterations,k,downsampling,width
         }
     }
 
-    img.save(format!("output-{}-{}-{}.png", iterations, width*k, downsampling)).unwrap();
+    img.save(format!("output-{}-{}-{}-{}.png", iterations, k, downsampling, width)).unwrap();
 }

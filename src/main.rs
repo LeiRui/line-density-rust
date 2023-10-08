@@ -187,35 +187,42 @@ fn main() {
     println!("width: {}, height: {}", width, height);
     println!("use_external_data: {}", use_external_data);
     println!("csv_dir_path: {}", csv_dir_path);
+    println!("=============================================", csv_dir_path);
 
-    // create sine wave as a model
-    let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
-        let heightf = height as f32;
-        let xf = x as f32 / k as f32;
-        let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;
-        y
-    }).collect();
+    let data;
+    if !use_external_data {
+        // create sine wave as a model
+        let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
+            let heightf = height as f32;
+            let xf = x as f32 / k as f32;
+            let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;
+            y
+        }).collect();
 
-    let data: Vec<Vec<u32>> = (0..iterations).map(|_| {
-        // add some noise
-        let normal = Normal::new(0.0, 12.0); // mean 0, standard deviation 12
-        let mut rng = rand::thread_rng();
-        // Each thread has an initialized generator.
-        // Integers are uniformly distributed over the range of the type,
-        // and floating point numbers are uniformly distributed from 0 up to but not including 1.
+        data: Vec<Vec<u32>> = (0..iterations).map(|_| {
+            // add some noise
+            let normal = Normal::new(0.0, 12.0); // mean 0, standard deviation 12
+            let mut rng = rand::thread_rng();
+            // Each thread has an initialized generator.
+            // Integers are uniformly distributed over the range of the type,
+            // and floating point numbers are uniformly distributed from 0 up to but not including 1.
 
-        model.iter().map(|v| {
-            let value = v + normal.ind_sample(& mut rng) as f32;
-            if value < 0.0 {
-                0u32
-            } else if value > height as f32 {
-                height
-            } else {
-                value as u32 // 这里又还原回整数了？
-            }
-        }).collect()
-    }).collect();
+            model.iter().map(|v| {
+                let value = v + normal.ind_sample(& mut rng) as f32;
+                if value < 0.0 {
+                    0u32
+                } else if value > height as f32 {
+                    height
+                } else {
+                    value as u32 // 这里又还原回整数了？
+                }
+            }).collect()
+        }).collect();
+    }
+    else {
+        // TODO read iterations csv files from csv_dir_path, for each csv read the first width*k points
 
+    }
 
     // M4 downsampling
     // data -> downsampled_data

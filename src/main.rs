@@ -92,10 +92,12 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
     aggregated
 }
 
-fn main() { // arguments: iterations,k,width
-    let mut width = 400;
-    let mut k = 4; // regular point count = width*k
+fn main() {
+    // arguments: iterations,k,width,height
     let mut iterations = 100; // number of time series
+    let mut k = 4; // regular point count = width*k
+    let mut width = 400;
+    let mut height = width;
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
@@ -132,8 +134,21 @@ fn main() { // arguments: iterations,k,width
             },
         };
     }
+    if args.len() > 4 {
+        height = match args[4].parse() {
+            Ok(n) => {
+                n
+            },
+            Err(_) => {
+                println!("error: argument not an integer");
+                return;
+            },
+        };
+    }
+    else {
+        height = width;
+    }
 
-    let height = width;
     println!("width: {}, height: {}", width, height);
     println!("number of time series: {}", iterations);
     println!("number of points in a time series: {}", width*k);
@@ -251,7 +266,7 @@ fn main() { // arguments: iterations,k,width
         }
     }
 
-    img.save(format!("output-{}-{}-{}-{}.png", iterations, k, downsampling, width)).unwrap();
+    img.save(format!("output-{}-{}-{}-{}-{}.png", iterations, k, width, height, downsampling)).unwrap();
 
     // ------------------------- test downsampled -------------------------
     downsampling = true;
@@ -291,5 +306,5 @@ fn main() { // arguments: iterations,k,width
         }
     }
 
-    img.save(format!("output-{}-{}-{}-{}.png", iterations, k, downsampling, width)).unwrap();
+    img.save(format!("output-{}-{}-{}-{}-{}.png", iterations, k, width, height, downsampling)).unwrap();
 }

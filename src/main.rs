@@ -247,9 +247,7 @@ fn main() {
         for record in reader.into_records() {
             let record = match record {
                 Ok(record) => record,
-                Err(err) => {
-                    return Err(Box::new(err));
-                }
+                Err(err) => println!("error match record"); return },
             };
 
             let row: Vec<String> = record

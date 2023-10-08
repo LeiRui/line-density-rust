@@ -246,7 +246,7 @@ fn main() {
         .map(|series| {
             run_series(&series, width as u32, height as u32, k as u32, downsampling)
         })
-        .reduce(|| Image::new(width, height), sum_images);
+        .reduce(|| Image::new(width as u32, height as u32), sum_images);
 
     println!("Computing line density took {}s", now.elapsed().as_secs());
 
@@ -256,7 +256,7 @@ fn main() {
         Lab::from(LinSrgb::new_u8(14, 66, 127))
     ]);
 
-    let mut img = RgbImage::new(width, height);
+    let mut img = RgbImage::new(width as u32, height as u32);
 
     // find the maximum value so that we can scale colors
     let max_value = aggregated.pixels().fold(

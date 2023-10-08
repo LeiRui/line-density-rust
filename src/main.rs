@@ -241,7 +241,7 @@ fn main() {
         let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(csv_dir_path);
         let reader = match reader_result {
             Ok(reader) => reader,
-            Err(err) => return Err(Box::new(err)),
+            Err(err) => { println!("error match reader_result"); return },
         };
         let mut cnt = 0;
         for record in reader.into_records() {

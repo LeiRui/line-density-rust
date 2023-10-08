@@ -218,7 +218,9 @@ fn main() {
                       if small > series[j] {
                           small = series[j]
                       }
+                      print!("{},",series[j]);
                  }
+                 println!("");
                  let first = series[start];
                  let last = series[end-1];
                  println!("first={},last={},small={},large={}",first,last,small,large);

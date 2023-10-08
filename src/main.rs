@@ -244,7 +244,7 @@ fn main() {
     let aggregated = data
         .par_iter()
         .map(|series| {
-            run_series(&series, width, height, k, downsampling)
+            run_series(&series, width as u32, height as u32, k as u32, downsampling)
         })
         .reduce(|| Image::new(width, height), sum_images);
 

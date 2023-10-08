@@ -114,7 +114,8 @@ fn main() {
     }).collect();
 
     // get the length
-    println!("count {}", model.len());
+    println!("number of points in a time series: {}", model.len());
+    println!("number of time series: {}", iterations);
 
     let data: Vec<Vec<u32>> = (0..iterations).map(|_| {
         // add some noise
@@ -155,11 +156,13 @@ fn main() {
          //}
     //});
 
-    let tmp: Vec<u32> = data.iter().map(|series| {
+    let tmp: Vec<Vec<u32>> = data.iter().map(|series| {
          // for one series
          // println!("{:#?}", series);
          // for i in 0..w {
-         (0..w).map(|i| {
+         let mut res: Vec<u32> = Vec::new();
+         for i in 0..w {
+         // (0..w).map(|i| {
              // println!("{}", x as f32/k as f32);
              let start = series.len()/w * i;
              let end = series.len()/w * (i+1);
@@ -176,8 +179,13 @@ fn main() {
              let first = series[start];
              let last = series[end-1];
              println!("first={},last={},small={},large={}",first,last,small,large);
-             first
-         }).collect()
+             res.push(first);
+             res.push(last);
+             res.push(small);
+             res.push(large);
+         }
+         //}).collect()
+         res
     }).collect();
 
     for row in tmp.iter() {

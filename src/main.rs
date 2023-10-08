@@ -140,89 +140,50 @@ fn main() {
 
     // M4 downsampling
     // data -> downsampled_data
-    //let w = 2; // the number of pixel columns should = width TODO
-    //data.iter().for_each(|series| {
+    let w = 2; // the number of pixel columns should = width TODO
+    data.iter().for_each(|series| {
          // for one series
          // println!("{:#?}", series);
-    //     for i in 0..w {
+         for i in 0..w {
              // println!("{}", x as f32/k as f32);
-    //         let start = series.len()/w * i;
-    //         let end = series.len()/w * (i+1);
-    //         for j in start..end {
-    //             print!("{},", series[j]);
-    //         }
-    //         println!("");
-    //     }
-    //});
+             let start = series.len()/w * i;
+             let end = series.len()/w * (i+1);
+             for j in start..end {c
+                 print!("{},", series[j]);
+             }
+             println!("");
+         }
+    });
 
-    //let data2: Vec<u32> = data.iter().map(|series| {
+    let tmp: Vec<u32> = data.iter().map(|series| {
          // for one series
          // println!("{:#?}", series);
-    //     for i in 0..w {
+         for i in 0..w {
              // println!("{}", x as f32/k as f32);
-    //         let start = series.len()/w * i;
-    //         let end = series.len()/w * (i+1);
-    //         for j in start..end {
-    //             print!("{:#?},", series[j]);
-    //         }
-     //        println!("");
-     //    }
-    //     1
-    //}).collect();
-
-   // data2.iter().for_each(|v| {
-         // for one series
-   //      print!("{:#?}", v);
-    //});
-
-    //let data3: Vec<u32> = data.iter().map(|series| {
-         // for one series
-         // println!("{:#?}", series);
-         //for i in 0..w {
-             // println!("{}", x as f32/k as f32);
-             //let start = series.len()/w * i;
-             //let end = series.len()/w * (i+1);
-             //let mut large: u32 = 0; // note value range [0,height]
-             //let mut small: u32 = height+1; // note value range [0,height]
-             //for j in start..end {
-                  //if large < series[j] {
-                  //    large = series[j]
-                  //}
-                  //if small > series[j] {
-                  //    small = series[j]
-                  //}
-             //}
-             //let first = series[start];
-             //let last = series[end-1];
-             //println!("first={},last={},small={},large={}",first,last,small,large);
-         //}
-         //1
-    //}).collect();
+             let start = series.len()/w * i;
+             let end = series.len()/w * (i+1);
+             let mut large: u32 = 0; // note value range [0,height]
+             let mut small: u32 = height+1; // note value range [0,height]
+             for j in start..end {
+                  if large < series[j] {
+                      large = series[j]
+                  }
+                  if small > series[j] {
+                      small = series[j]
+                  }
+             }
+             let first = series[start];
+             let last = series[end-1];
+             println!("first={},last={},small={},large={}",first,last,small,large);
+         }
+         1
+    }).collect();
 
     //for row in data.iter() {
     //    for pixel in row.iter() {
     //        println!("{:#?}", pixel);
     //    }
     //}
-
-    //let downsampled_data: Vec<Vec<u32>> = data.iter().map(|series| {
-    //  series.iter().map(|v| {
-    //    let y = v as u32;
-    //    y
-    //  }).collect()
-    //}).collect();
-
-    // iterate each series, extract for each bin (x is regular so can use equi-depth bins)
-
-    //let downsampled_data: Vec<Vec<u32>> = data
-    //    .par_iter()
-    //    .map(|series| {
-    //        series
-    //}).collect();
-
-    //downsampled_data.iter().for_each(|it| {
-    //     println!("{:#?}", it);
-    //});
 
     println!("Preparing data took {}s", now.elapsed().as_secs());
     let now = Instant::now();

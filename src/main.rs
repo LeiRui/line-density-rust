@@ -95,12 +95,10 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
 fn main() { // arguments: iterations,k,width
     let mut width = 400;
     let mut k = 4; // regular point count = width*k
-    // let mut downsampling = true;
+    let mut iterations = 100; // number of time series
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
-    let mut iterations = 100; // number of time series
-
     if args.len() > 1 {
             iterations = match args[1].parse() {
                 Ok(n) => {

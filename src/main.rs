@@ -273,9 +273,9 @@ fn main() {
             return;
         }
 
-        let tmp: Vec<Vec<u32>> = (0..iterations).map(|i| { // TODO tmp be data
+        let tmp: Vec<Vec<String>> = (0..iterations).map(|i| { // TODO tmp be data
             let f = files[i]; // the i-th files, containing the i-th time series
-            let mut res: Vec<u32> = Vec::new();
+            let mut res: Vec<String> = Vec::new();
             let mut point_cnt = 0; // width*k points
 
             let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(f);
@@ -311,13 +311,15 @@ fn main() {
                 return;
             }
             res
-        }.collect();
+        }).collect();
 
         for row in tmp.iter() {
             for pixel in row.iter() {
                 println!("{:#?}", pixel);
             }
         }
+
+        data = Vec::new(); // TODO remove
 
     }// else end
 

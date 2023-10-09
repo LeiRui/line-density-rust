@@ -281,12 +281,12 @@ fn main() {
             let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(f);
             let reader = match reader_result {
                 Ok(reader) => reader,
-                Err(_) => { println!("error match reader_result"); return },
+                Err(_) => { println!("error match reader_result"); return; },
             };
             for record in reader.into_records() {
                 let record = match record {
                     Ok(record) => record,
-                    Err(_) => { println!("error match record"); return },
+                    Err(_) => { println!("error match record"); return; },
                 };
 
                 let row: Vec<String> = record

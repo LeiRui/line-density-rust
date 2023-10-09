@@ -274,9 +274,9 @@ fn main() {
         }
 
         //let tmp: Vec<Vec<String>> = (0..iterations).map(|i| { // TODO tmp be data
-        let tmp: Vec<Vec<String>> = Vec::new();
+        let mut tmp: Vec<Vec<String>> = Vec::new();
         for i in 0..iterations {
-            let f = files[i]; // the i-th files, containing the i-th time series
+            let f = &files[i]; // the i-th files, containing the i-th time series
             let mut res: Vec<String> = Vec::new();
             let mut point_cnt = 0; // width*k points
 

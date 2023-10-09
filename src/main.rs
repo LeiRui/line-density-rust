@@ -95,7 +95,7 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
     aggregated
 }
 
-fn get_files_in_directory(path: &str) -> io::Result<Vec<String>> {
+fn get_files_in_directory(path: &str) -> Vec<String> {
     // Get a list of all entries in the folder
     let entries = fs::read_dir(path)?;
 
@@ -111,7 +111,7 @@ fn get_files_in_directory(path: &str) -> io::Result<Vec<String>> {
         })
         .collect();
 
-    Ok(file_names)
+    file_names
 }
 
 fn main() {
@@ -222,7 +222,7 @@ fn main() {
     println!("has_header: {}", has_header);
     println!("=============================================");
 
-    let files:Vec<String> = get_files_in_directory(csv_dir_path);
+    let files:Vec<String> = get_files_in_directory(&csv_dir_path);
     println!("{:?}", files);
 
     let data:Vec<Vec<u32>>;

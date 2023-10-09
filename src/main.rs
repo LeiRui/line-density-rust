@@ -299,11 +299,12 @@ fn main() {
                         println!("error: the file f has less than 2 columns");
                         return;
                 }
-                println!("{:?}", row);
+                // println!("{:?}", row);
 
                 // parse string into double value and then value as u32
                 let v = row[1].parse::<f32>().unwrap();
                 res.push(v); // assume the second column is value field
+
                 if v > global_max {
                     global_max = v;
                 }
@@ -315,24 +316,25 @@ fn main() {
                 if point_cnt >= width*k { // only needs width*k points in each file f
                     break;
                 }
-            } // for loop
+            } // end for loop
             if point_cnt < width*k { // the file f has less than width*k points
                 println!("error: the file f has less than width*k points");
                 return;
             }
-            data_tmp.push(res);
-        } // end for
+            data_tmp.push(res); // finish one time series
+        } // end for, finish iteration numbers of time series
 
-        // scale v: (v-global_min)/(global_max-global_min)*height as u32
+        // scale v: (v-global_min)/(global_max-global_min)*height
         data = Vec::new();
         for i in 0..iterations {
             let mut res: Vec<u32> = Vec::new();
             for j in 0..width*k {
-                res.push((data_tmp[i][j]-global_min)/(global_max-global_min)*height as u32);
+                let v: f32 = (data_tmp[i as usize][j as usize]-global_min)/(global_max-global_min)* height as f32;
+                res.push(v as u32);
             }
             data.push(res);
         } // end for
-        
+
     }// end else
 
 
@@ -370,13 +372,13 @@ fn main() {
          res
     }).collect();
 
-    for row in data.iter() {
-        println!("{:?}", row);
-    }
+    //for row in data.iter() {
+        //println!("{:?}", row);
+    //}
 
-    for row in downsamples.iter() {
-        println!("{:?}", row);
-    }
+    //for row in downsamples.iter() {
+        //println!("{:?}", row);
+    //}
 
     // color scale to convert from value to a color
     let color_scale = Gradient::new(vec![

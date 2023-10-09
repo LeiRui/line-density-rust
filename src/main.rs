@@ -222,7 +222,16 @@ fn main() {
     println!("has_header: {}", has_header);
     println!("=============================================");
 
-    let files:io::Result<Vec<String>> = get_files_in_directory(&csv_dir_path);
+    // let files:io::Result<Vec<String>> = get_files_in_directory(&csv_dir_path);
+    let files:Vec<String> = match get_files_in_directory(&csv_dir_path) {
+        Ok(files) => {
+            files
+        },
+        Err(e) => {
+            println!("error: get_files_in_directory");
+            return;
+        },
+    };
     println!("{:?}", files);
 
     let data:Vec<Vec<u32>>;

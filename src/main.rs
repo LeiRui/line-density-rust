@@ -385,7 +385,7 @@ fn main() {
         //Lab::from(LinSrgb::new_u8(247, 252, 241)),
         //Lab::from(LinSrgb::new_u8(14, 66, 127))
         Lab::from(LinSrgb::new_u8(247, 252, 24)),
-        Lab::from(LinSrgb::new_u8(14, 66, 12))
+        Lab::from(LinSrgb::new_u8(14, 66, 127))
     ]);
 
     // ------------------------- test original -------------------------

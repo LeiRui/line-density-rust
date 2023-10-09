@@ -382,8 +382,10 @@ fn main() {
 
     // color scale to convert from value to a color
     let color_scale = Gradient::new(vec![
-        Lab::from(LinSrgb::new_u8(247, 252, 241)),
-        Lab::from(LinSrgb::new_u8(14, 66, 127))
+        //Lab::from(LinSrgb::new_u8(247, 252, 241)),
+        //Lab::from(LinSrgb::new_u8(14, 66, 127))
+        Lab::from(LinSrgb::new_u8(247, 252, 24)),
+        Lab::from(LinSrgb::new_u8(14, 66, 12))
     ]);
 
     // ------------------------- test original -------------------------

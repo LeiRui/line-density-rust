@@ -222,7 +222,7 @@ fn main() {
     println!("has_header: {}", has_header);
     println!("=============================================");
 
-    let data:Vec<Vec<u32>>;
+    let mut data:Vec<Vec<u32>>;
     if !use_external_data {
         // create sine wave as a model
         let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
@@ -253,11 +253,9 @@ fn main() {
         }).collect();
     }
     else {
-        // TODO read iterations csv files from csv_dir_path,
+        // read iterations csv files from csv_dir_path,
         // for each csv read the first width*k points,
         // only read the second column as values, as timestamps are regular (0..width*k)/k
-        // data = Vec::new();
-        // TODO read csv file from csv_dir_path
         let files:Vec<String> = match get_files_in_directory(&csv_dir_path) {
             Ok(files) => {
                 files
@@ -273,10 +271,12 @@ fn main() {
             return;
         }
 
-        // let mut tmp: Vec<Vec<u32>> = Vec::new();
+        let mut data_tmp: Vec<Vec<f32>> = Vec::new();
+        let mut global_min: f32 = f32::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
+        let mut global_max: f32 = f32::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
         for i in 0..iterations {
             let f = format!("{}/{}",csv_dir_path,files[i]); // the i-th files, containing the i-th time series
-            let mut res: Vec<u32> = Vec::new();
+            let mut res: Vec<f32> = Vec::new();
             let mut point_cnt = 0; // width*k points
 
             let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(f);
@@ -303,7 +303,13 @@ fn main() {
 
                 // parse string into double value and then value as u32
                 let v = row[1].parse::<f32>().unwrap();
-                res.push(v as u32); // assume the second column is value field
+                res.push(v); // assume the second column is value field
+                if v > global_max {
+                    global_max = v;
+                }
+                if v < global_min {
+                    global_min = v;
+                }
 
                 point_cnt += 1;
                 if point_cnt >= width*k { // only needs width*k points in each file f
@@ -314,15 +320,21 @@ fn main() {
                 println!("error: the file f has less than width*k points");
                 return;
             }
-            data.push(res);
-        }
-    }// else end
+            data_tmp.push(res);
+        } // end for
 
-    for row in data.iter() {
-        for pixel in row.iter() {
-            println!("{:#?}", pixel);
-        }
-    }
+        // scale v: (v-global_min)/(global_max-global_min)*height as u32
+        data = Vec::new();
+        for i in 0..iterations {
+            let mut res: Vec<u32> = Vec::new();
+            for j in 0..width*k {
+                res.push((data_tmp[i][j]-global_min)/(global_max-global_min)*height as u32);
+            }
+            data.push(res);
+        } // end for
+        
+    }// end else
+
 
     // M4 downsampling
     // data -> downsampled_data
@@ -355,14 +367,15 @@ fn main() {
              res.push(large);
              res.push(last); // note this is the last
          }
-         //}).collect()
          res
     }).collect();
 
+    for row in data.iter() {
+        println!("{:?}", row);
+    }
+
     for row in downsamples.iter() {
-        for pixel in row.iter() {
-            println!("{:#?}", pixel);
-        }
+        println!("{:?}", row);
     }
 
     // color scale to convert from value to a color

@@ -273,10 +273,9 @@ fn main() {
             return;
         }
 
-        //let tmp: Vec<Vec<String>> = (0..iterations).map(|i| { // TODO tmp be data
-        let mut tmp: Vec<Vec<u32>> = Vec::new();
+        // let mut tmp: Vec<Vec<u32>> = Vec::new();
         for i in 0..iterations {
-            let f = &files[i]; // the i-th files, containing the i-th time series
+            let f = format!("{}/{}",csv_dir_path,files[i]); // the i-th files, containing the i-th time series
             let mut res: Vec<u32> = Vec::new();
             let mut point_cnt = 0; // width*k points
 
@@ -303,8 +302,8 @@ fn main() {
                 println!("{:?}", row);
 
                 // parse string into double value and then value as u32
-                let f = row[1].parse::<f32>().unwrap();
-                res.push(f as u32); // assume the second column is value field
+                let v = row[1].parse::<f32>().unwrap();
+                res.push(v as u32); // assume the second column is value field
 
                 point_cnt += 1;
                 if point_cnt >= width*k { // only needs width*k points in each file f
@@ -315,18 +314,15 @@ fn main() {
                 println!("error: the file f has less than width*k points");
                 return;
             }
-            tmp.push(res);
+            data.push(res);
         }
-
-        for row in tmp.iter() {
-            for pixel in row.iter() {
-                println!("{:#?}", pixel);
-            }
-        }
-
-        data = Vec::new(); // TODO remove
-
     }// else end
+
+    for row in data.iter() {
+        for pixel in row.iter() {
+            println!("{:#?}", pixel);
+        }
+    }
 
     // M4 downsampling
     // data -> downsampled_data
@@ -362,11 +358,12 @@ fn main() {
          //}).collect()
          res
     }).collect();
-    //for row in tmp.iter() {
-        //for pixel in row.iter() {
-            //println!("{:#?}", pixel);
-        //}
-    //}
+
+    for row in downsamples.iter() {
+        for pixel in row.iter() {
+            println!("{:#?}", pixel);
+        }
+    }
 
     // color scale to convert from value to a color
     let color_scale = Gradient::new(vec![

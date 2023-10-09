@@ -36,8 +36,8 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
               let x = j as f32 / k as f32; // e.g., x=9/10 rather than 3/4
               draw_line_segment_mut(
                  &mut data,
-                 (x, series[i as usize] as f32),
-                 ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
+                 (x, height as f32 - series[i as usize] as f32),
+                 ((i as f32 +1.0)/4.0, height as f32 - series[i as usize + 1]  as f32),
                  Luma([1.0]),
               );
               // println!("({},{}),({},{}),",x,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
@@ -48,8 +48,8 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
           // first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column
               draw_line_segment_mut(
                   &mut data,
-                  (i as f32 / 4.0, series[i as usize] as f32),
-                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
+                  (i as f32 / 4.0, height as f32 - series[i as usize] as f32),
+                  ((i as f32 +1.0)/4.0, height as f32 - series[i as usize + 1]  as f32),
                   Luma([1.0]),
               );
               // println!("({},{}),({},{}),",i as f32 / 4.0,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
@@ -62,8 +62,8 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
       // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
           draw_line_segment_mut(
               &mut data,
-              (x as f32 / k as f32, series[x as usize] as f32),
-              ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
+              (x as f32 / k as f32, height as f32 - series[x as usize] as f32),
+              ((x as f32 + 1.0) / k as f32, height as f32 - series[x as usize + 1] as f32),
               Luma([1.0]),
           );
           // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
@@ -329,8 +329,7 @@ fn main() {
         for i in 0..iterations {
             let mut res: Vec<u32> = Vec::new();
             for j in 0..width*k {
-                let v: f32 = height as f32 - (data_tmp[i as usize][j as usize]-global_min)/(global_max-global_min)* height as f32;
-                // height - (v-global_min)/(global_max-global_min)*height is for data space and pixel space coordinate fix
+                let v: f32 = (data_tmp[i as usize][j as usize]-global_min)/(global_max-global_min)* height as f32;
                 res.push(v as u32);
             }
             data.push(res);

@@ -279,7 +279,7 @@ fn main() {
             let mut res: Vec<f32> = Vec::new();
             let mut point_cnt = 0; // width*k points
 
-            let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(f);
+            let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(&f);
             let reader = match reader_result {
                 Ok(reader) => reader,
                 Err(_) => { println!("error match reader_result"); return; },
@@ -318,7 +318,7 @@ fn main() {
                 }
             } // end for loop
             if point_cnt < width*k { // the file f has less than width*k points
-                println!(format!("error: the file {} has less than width*k points",f));
+                println!("error: the file {} has less than width*k points",f);
                 return;
             }
             data_tmp.push(res); // finish one time series
@@ -329,7 +329,8 @@ fn main() {
         for i in 0..iterations {
             let mut res: Vec<u32> = Vec::new();
             for j in 0..width*k {
-                let v: f32 = (data_tmp[i as usize][j as usize]-global_min)/(global_max-global_min)* height as f32;
+                let v: f32 = height as f32 - (data_tmp[i as usize][j as usize]-global_min)/(global_max-global_min)* height as f32;
+                // height - (v-global_min)/(global_max-global_min)*height is for data space and pixel space coordinate fix
                 res.push(v as u32);
             }
             data.push(res);

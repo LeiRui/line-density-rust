@@ -247,7 +247,7 @@ fn main() {
                 } else if value > height as f32 {
                     height
                 } else {
-                    value as u32 // 这里又还原回整数了？
+                    value as u32 // note
                 }
             }).collect()
         }).collect();
@@ -274,10 +274,10 @@ fn main() {
         }
 
         //let tmp: Vec<Vec<String>> = (0..iterations).map(|i| { // TODO tmp be data
-        let mut tmp: Vec<Vec<String>> = Vec::new();
+        let mut tmp: Vec<Vec<u32>> = Vec::new();
         for i in 0..iterations {
             let f = &files[i]; // the i-th files, containing the i-th time series
-            let mut res: Vec<String> = Vec::new();
+            let mut res: Vec<u32> = Vec::new();
             let mut point_cnt = 0; // width*k points
 
             let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(f);
@@ -301,7 +301,10 @@ fn main() {
                         return;
                 }
                 println!("{:?}", row);
-                res.push(row[1]); // assume the second column is value field
+
+                // parse string into double value and then value as u32
+                let f = row[1].parse::<f32>().unwrap();
+                res.push(f as u32); // assume the second column is value field
 
                 point_cnt += 1;
                 if point_cnt >= width*k { // only needs width*k points in each file f

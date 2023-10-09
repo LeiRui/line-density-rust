@@ -424,7 +424,7 @@ fn main() {
         }
     }
 
-    img.save(format!("output-{}-{}-{}-{}-{}.png", iterations, k, width, height, downsampling)).unwrap();
+    img.save(format!("output-i{}-k{}-w{}-h{}-u{}-d{}.png", iterations, k, width, height, use_external_data, downsampling)).unwrap();
 
     // ------------------------- test downsampled -------------------------
     downsampling = true;
@@ -463,6 +463,5 @@ fn main() {
             img.put_pixel(x,y,converted_color);
         }
     }
-
-    img.save(format!("output-{}-{}-{}-{}-{}.png", iterations, k, width, height, downsampling)).unwrap();
+    img.save(format!("output-i{}-k{}-w{}-h{}-u{}-d{}.png", iterations, k, width, height, use_external_data, downsampling)).unwrap();
 }

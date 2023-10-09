@@ -318,7 +318,7 @@ fn main() {
                 }
             } // end for loop
             if point_cnt < width*k { // the file f has less than width*k points
-                println!("error: the file f has less than width*k points");
+                println!(format!("error: the file {} has less than width*k points",f));
                 return;
             }
             data_tmp.push(res); // finish one time series

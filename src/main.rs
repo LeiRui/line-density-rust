@@ -13,6 +13,7 @@ use rayon::prelude::*;
 use std::time::Instant;
 use std::env;
 use csv::ReaderBuilder;
+use std::{fs, io};
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
@@ -92,6 +93,25 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
     }
 
     aggregated
+}
+
+fn get_files_in_directory(path: &str) -> io::Result<Vec<String>> {
+    // Get a list of all entries in the folder
+    let entries = fs::read_dir(path)?;
+
+    // Extract the filenames from the directory entries and store them in a vector
+    let file_names: Vec<String> = entries
+        .filter_map(|entry| {
+            let path = entry.ok()?.path();
+            if path.is_file() {
+                path.file_name()?.to_str().map(|s| s.to_owned())
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    Ok(file_names)
 }
 
 fn main() {
@@ -201,6 +221,9 @@ fn main() {
     println!("csv_dir_path: {}", csv_dir_path);
     println!("has_header: {}", has_header);
     println!("=============================================");
+
+    let files:Vec<String> = get_files_in_directory(csv_dir_path);
+    println!("{:?}", files);
 
     let data:Vec<Vec<u32>>;
     if !use_external_data {

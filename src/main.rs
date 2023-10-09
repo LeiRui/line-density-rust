@@ -222,18 +222,6 @@ fn main() {
     println!("has_header: {}", has_header);
     println!("=============================================");
 
-    // let files:io::Result<Vec<String>> = get_files_in_directory(&csv_dir_path);
-    let files:Vec<String> = match get_files_in_directory(&csv_dir_path) {
-        Ok(files) => {
-            files
-        },
-        Err(e) => {
-            println!("error: get_files_in_directory");
-            return;
-        },
-    };
-    println!("{:?}", files);
-
     let data:Vec<Vec<u32>>;
     if !use_external_data {
         // create sine wave as a model
@@ -268,33 +256,68 @@ fn main() {
         // TODO read iterations csv files from csv_dir_path,
         // for each csv read the first width*k points,
         // only read the second column as values, as timestamps are regular (0..width*k)/k
-        data = Vec::new();
+        // data = Vec::new();
         // TODO read csv file from csv_dir_path
-        let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(csv_dir_path);
-        let reader = match reader_result {
-            Ok(reader) => reader,
-            Err(_) => { println!("error match reader_result"); return },
+        let files:Vec<String> = match get_files_in_directory(&csv_dir_path) {
+            Ok(files) => {
+                files
+            },
+            Err(_) => {
+                println!("error: get_files_in_directory");
+                return;
+            },
         };
-        let mut cnt = 0;
-        for record in reader.into_records() {
-            let record = match record {
-                Ok(record) => record,
-                Err(_) => { println!("error match record"); return },
+        println!("{:?}", files);
+        if files.len() < iterations {
+            println!("error: there are no iterations number of files in csv_dir_path");
+            return;
+        }
+
+        let tmp: Vec<Vec<u32>> = (0..iterations).map(|i| { // TODO tmp be data
+            let f = files[i]; // the i-th files, containing the i-th time series
+            let mut res: Vec<u32> = Vec::new();
+            let mut point_cnt = 0; // width*k points
+
+            let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(f);
+            let reader = match reader_result {
+                Ok(reader) => reader,
+                Err(_) => { println!("error match reader_result"); return },
             };
+            for record in reader.into_records() {
+                let record = match record {
+                    Ok(record) => record,
+                    Err(_) => { println!("error match record"); return },
+                };
 
-            let row: Vec<String> = record
-                    .iter()
-                    .map(|field| field.trim().to_string())
-                    .collect();
+                let row: Vec<String> = record
+                        .iter()
+                        .map(|field| field.trim().to_string())
+                        .collect();
 
-            // data.push(row);
-            println!("{:?}", row);
+                if row.len()<2 {
+                        println!("error: the file f has less than 2 columns");
+                        return;
+                }
+                println!("{:?}", row);
+                res.push(row[1]); // assume the second column is value field
 
-            cnt += 1;
-            if cnt >= width*k {
-                break;
+                point_cnt += 1;
+                if point_cnt >= width*k { // only needs width*k points in each file f
+                    break;
+                }
+            } // for loop
+            if point_cnt < width*k { // the file f has less than width*k points
+                println!("error: the file f has less than width*k points");
+                return;
             }
-        } // for loop
+            res
+        }.collect();
+
+        for row in tmp.iter() {
+            for pixel in row.iter() {
+                println!("{:#?}", pixel);
+            }
+        }
 
     }// else end
 

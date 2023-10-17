@@ -236,8 +236,6 @@ fn main() {
     // ------------------------- plot -------------------------
     let mut aggregated = run_series(&data[0], &data[1], width as u32, height as u32);
 
-    println!("Downsampling:{}, Computing line density took {}ms", downsampling, now.elapsed().as_millis());
-
     let mut img = RgbImage::new(width as u32, height as u32);
 
     // find the maximum value so that we can scale colors

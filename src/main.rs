@@ -226,6 +226,53 @@ fn main() {
     data.push(res_t_new);
     data.push(res_v_new);
 
+
+    // --------------------debug--------------------------
+    let w = width;
+    let tmp_t=&data[0];
+    let tmp_v=&data[1];
+    // let w:u32 = 2; // the number of pixel columns should = width
+    for i in 0..w {
+         // println!("{}", x as f32/k as f32);
+         let mut large_v: f64 = f64::MIN; // note value range [0,height]
+         let mut small_v: f64 = f64::MAX; // note value range [0,height]
+         let mut large_t: f64 = 0.0;
+         let mut small_t: f64 = 0.0;
+         let mut first_t: f64 = 0.0;
+         let mut first_v: f64 = 0.0;
+         let mut last_t: f64 = 0.0;
+         let mut last_v: f64 = 0.0;
+         let mut noFirst: bool = true;
+         for j in 0..tmp_t.len() {
+              if tmp_t[j]>=i {
+                if noFirst {
+                  first_t=tmp_t[j];
+                  first_v=tmp_v[j];
+                  noFirst=false;
+                }
+              }
+              if tmp_t[j]>= i+1 {
+                  break;
+              }
+              last_t=tmp_t[j];
+              last_v=tmp_v[j];
+              if large_v < tmp_v[j] {
+                  large_v = tmp_v[j]
+                  large_t = tmp_t[j]
+              }
+              if small_v > tmp_v[j] {
+                  small_v = tmp_v[j];
+                  small_t = tmp_t[j];
+              }
+              // print!("{},",series[j]);
+         }
+         println!("{},first=({},{}),last=({},{}),small=({},{}),large=({},{})",i,first_t,first_v,last_t,last_v,small_t,small_v,large_t,large_v);
+         println!("");
+     }
+
+
+    // --------------------
+
     // color scale to convert from value to a color
     // binary color here
     let color_scale = Gradient::new(vec![

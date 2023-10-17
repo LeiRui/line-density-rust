@@ -169,7 +169,7 @@ fn main() {
     let mut data: Vec<Vec<f64>> = Vec::new(); // the first vector being t, the second vector being v
     let mut global_min: f64 = f64::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
     let mut global_max: f64 = f64::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
-    let f = csv_path;
+    let f = &csv_path;
     let mut res_t: Vec<f64> = Vec::new(); // t
     let mut res_v: Vec<f64> = Vec::new(); // v
     let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(&f);
@@ -219,9 +219,9 @@ fn main() {
         res_v_new.push(v as f64);
     }
 
-    // for j in 0..12 {
-        //print!("{},",res_t_new[j]);
-    // }
+    for j in 0..12 {
+        print!("({},{}),",res_t_new[j],res_v_new[j]);
+    }
 
     data.push(res_t_new);
     data.push(res_v_new);

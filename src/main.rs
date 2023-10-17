@@ -15,9 +15,9 @@ use std::env;
 use csv::ReaderBuilder;
 use std::{fs, io};
 
-type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
+type Image = ImageBuffer<Luma<f64>, Vec<f64>>;
 
-fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: bool) -> Image {
+fn run_series(series: &[f64], width: f64, height: f64, k: f64, downsampling: bool) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
     // println!("length:{}", series.len());
@@ -33,14 +33,14 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
           // but first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column,
           // so only last point needs alignment
               let j = (i / 4 + 1 ) * k - 1; // e.g., k=10, i=3, j=9
-              let x = j as f32 / k as f32; // e.g., x=9/10 rather than 3/4
+              let x = j as f64 / k as f64; // e.g., x=9/10 rather than 3/4
               draw_line_segment_mut(
                  &mut data,
-                 (x, series[i as usize] as f32),
-                 ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
+                 (x, series[i as usize] as f64),
+                 ((i as f64 +1.0)/4.0, series[i as usize + 1]  as f64),
                  Luma([1.0]),
               );
-              // println!("({},{}),({},{}),",x,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
+              // println!("({},{}),({},{}),",x,series[i as usize],(i as f64 +1.0)/4.0,series[i as usize + 1]);
               // https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html
               // Uses Bresenham’s line drawing algorithm.
           }
@@ -48,11 +48,11 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
           // first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column
               draw_line_segment_mut(
                   &mut data,
-                  (i as f32 / 4.0, series[i as usize] as f32),
-                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
+                  (i as f64 / 4.0, series[i as usize] as f64),
+                  ((i as f64 +1.0)/4.0, series[i as usize + 1]  as f64),
                   Luma([1.0]),
               );
-              // println!("({},{}),({},{}),",i as f32 / 4.0,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
+              // println!("({},{}),({},{}),",i as f64 / 4.0,series[i as usize],(i as f64 +1.0)/4.0,series[i as usize + 1]);
           }
       }
     }
@@ -62,11 +62,11 @@ fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: boo
       // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
           draw_line_segment_mut(
               &mut data,
-              (x as f32 / k as f32, series[x as usize] as f32),
-              ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
+              (x as f64 / k as f64, series[x as usize] as f64),
+              ((x as f64 + 1.0) / k as f64, series[x as usize + 1] as f64),
               Luma([1.0]),
           );
-          // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
+          // println!("({},{}),({},{}),",x as f64 / k as f64,series[x as usize],(x as f64 + 1.0) / k as f64,series[x as usize + 1]);
       }
     }
 
@@ -187,7 +187,7 @@ fn main() {
     }
 
 
-    // arguments: iterations,k,width,height,use_external_data,csv_path,has_header
+     // arguments: width,height,csv_path,has_header,tqs,tqe
     println!("width: {}, height: {}", width, height);
     println!("csv_path: {}", csv_path);
     println!("has_header: {}", has_header);
@@ -195,10 +195,63 @@ fn main() {
     println!("tqe: {}", has_header);
 
     // t_max=math.ceil((t_max_temp-t_min)/(2*width))*2*width+t_min
-    let f = (tqs-tqe)/(2.0*width);
+    let f = (teq-tqs)/(2.0*width);
     tqe = f.ceil()*2.0*width+tqs;
     println!("adapted tqe: {}", tqe);
 
     println!("=============================================");
 
+    // read csv
+    let mut data: Vec<Vec<f64>> = Vec::new(); // the first vector being t, the second vector being v
+    let mut global_min: f64 = f64::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
+    let mut global_max: f64 = f64::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
+    let f = csv_path;
+    let mut res_t: Vec<f64> = Vec::new(); // t
+    let mut res_v: Vec<f64> = Vec::new(); // v
+    let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(&f);
+    let reader = match reader_result {
+        Ok(reader) => reader,
+        Err(_) => { println!("error match reader_result"); return; },
+    };
+    for record in reader.into_records() {
+        let record = match record {
+            Ok(record) => record,
+            Err(_) => { println!("error match record"); return; },
+        };
+
+        let row: Vec<String> = record
+                .iter()
+                .map(|field| field.trim().to_string())
+                .collect();
+
+        if row.len()<2 {
+                println!("error: the file f has less than 2 columns");
+                return;
+        }
+        // println!("{:?}", row);
+
+        // parse string into double value and then value as f64
+        let t = row[0].parse::<f64>().unwrap();
+        let v = row[1].parse::<f64>().unwrap();
+        res_t.push(t);
+        res_v.push(v);
+
+        if v > global_max {
+            global_max = v;
+        }
+        if v < global_min {
+            global_min = v;
+        }
+    } // end read
+    data.push(res_t);
+
+    // scale v: (v-global_min)/(global_max-global_min)*height
+    let mut res_v_new: Vec<f64> = Vec::new();
+    for j in 0..res_v.len() {
+        let v: f64 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
+        res_v_new.push(v as f64);
+    }
+    data.push(res_v_new);
+
+    
 }

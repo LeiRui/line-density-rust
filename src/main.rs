@@ -195,7 +195,7 @@ fn main() {
     println!("tqe: {}", has_header);
 
     // t_max=math.ceil((t_max_temp-t_min)/(2*width))*2*width+t_min
-    let f = (teq-tqs)/(2.0*width);
+    let f = (tqe-tqs)/(2.0*width);
     tqe = f.ceil()*2.0*width+tqs;
     println!("adapted tqe: {}", tqe);
 

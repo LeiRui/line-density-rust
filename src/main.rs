@@ -17,18 +17,18 @@ use std::{fs, io};
 
 type Image = ImageBuffer<Luma<f64>, Vec<f64>>;
 
-fn run_series(series: &[u32], width: u32, height: u32, k: u32) -> Image {
+fn run_series(series_t: &[f64], series_v: &[f64], width: u32, height: u32) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
     // println!("length:{}", series.len());
 
-    for x in 0..width*k-1 {
+    for i in 0..series_t.len()-1 {
     // -1 because draw line connecting two points
     // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
         draw_line_segment_mut(
             &mut data,
-            (x as f32 / k as f32, series[x as usize] as f32),
-            ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
+            (series_t[i as usize] as f32, series_v[i as usize] as f32),
+            (series_t[i as usize + 1] as f32, series_v[i as usize + 1] as f32),
             Luma([1.0]),
         );
         // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
@@ -218,7 +218,52 @@ fn main() {
         let v: f64 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
         res_v_new.push(v as f64);
     }
+
+    // for j in 0..12 {
+        //print!("{},",res_t_new[j]);
+    // }
+
     data.push(res_t_new);
     data.push(res_v_new);
+
+    // color scale to convert from value to a color
+    // binary color here
+    let color_scale = Gradient::new(vec![
+        Lab::from(LinSrgb::new_u8(0,0,0)),
+        Lab::from(LinSrgb::new_u8(0,0,0))
+    ]);
+
+    // ------------------------- plot -------------------------
+    let mut aggregated = run_series(&data[0], &data[1], width as u32, height as u32);
+
+    println!("Downsampling:{}, Computing line density took {}ms", downsampling, now.elapsed().as_millis());
+
+    let mut img = RgbImage::new(width as u32, height as u32);
+
+    // find the maximum value so that we can scale colors
+    let mut max_value = aggregated.pixels().fold(
+        0.0,
+        |max,pixel| f32::max(max, pixel[0])
+    );
+
+    // create output image
+    for (x, y, pixel) in aggregated.enumerate_pixels() {
+        let value = pixel[0];
+        if value == 0.0 {
+            img.put_pixel(x,y,image::Rgb([255,255,255]));
+        } else {
+            let color = LinSrgb::from(color_scale.get(value / max_value));
+            let converted_color = image::Rgb([
+                (color.red * 255.0).round() as u8,
+                (color.green * 255.0).round() as u8,
+                (color.blue * 255.0).round() as u8]
+            );
+
+            img.put_pixel(x,y,converted_color);
+        }
+    }
+
+    // ts-lttb-600.csv-600.png
+    img.save(format!("{}-{}.png", csv_path, width)).unwrap();
 
 }

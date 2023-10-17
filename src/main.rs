@@ -17,57 +17,21 @@ use std::{fs, io};
 
 type Image = ImageBuffer<Luma<f64>, Vec<f64>>;
 
-fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: bool) -> Image {
+fn run_series(series: &[u32], width: u32, height: u32, k: u32) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
     // println!("length:{}", series.len());
 
-    // draw the time series as a line
-    if downsampling {
-      // first, last, small, large
-      for i in 0..width*4-1 { // M4 downsampling
-      // -1 because draw line connecting two points
-      // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
-          if i % 4 == 3 {
-          // the last point in a column, need align, because 3/4 != 9/10,
-          // but first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column,
-          // so only last point needs alignment
-              let j = (i / 4 + 1 ) * k - 1; // e.g., k=10, i=3, j=9
-              let x = j as f32 / k as f32; // e.g., x=9/10 rather than 3/4
-              draw_line_segment_mut(
-                 &mut data,
-                 (x, series[i as usize] as f32),
-                 ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
-                 Luma([1.0]),
-              );
-              // println!("({},{}),({},{}),",x,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
-              // https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html
-              // Uses Bresenham’s line drawing algorithm.
-          }
-          else {
-          // first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column
-              draw_line_segment_mut(
-                  &mut data,
-                  (i as f32 / 4.0, series[i as usize] as f32),
-                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
-                  Luma([1.0]),
-              );
-              // println!("({},{}),({},{}),",i as f32 / 4.0,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
-          }
-      }
-    }
-    else {
-      for x in 0..width*k-1 {
-      // -1 because draw line connecting two points
-      // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
-          draw_line_segment_mut(
-              &mut data,
-              (x as f32 / k as f32, series[x as usize] as f32),
-              ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
-              Luma([1.0]),
-          );
-          // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
-      }
+    for x in 0..width*k-1 {
+    // -1 because draw line connecting two points
+    // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
+        draw_line_segment_mut(
+            &mut data,
+            (x as f32 / k as f32, series[x as usize] as f32),
+            ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
+            Luma([1.0]),
+        );
+        // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
     }
 
     // normalize
@@ -243,15 +207,18 @@ fn main() {
             global_min = v;
         }
     } // end read
-    data.push(res_t);
 
     // scale v: (v-global_min)/(global_max-global_min)*height
+    let mut res_t_new: Vec<f64> = Vec::new();
     let mut res_v_new: Vec<f64> = Vec::new();
     for j in 0..res_v.len() {
+        let t: f64 = (res_t[j as usize]-tqs)/(tqe-tqs)* width;
+        res_t_new.push(t as f64);
+
         let v: f64 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
         res_v_new.push(v as f64);
     }
+    data.push(res_t_new);
     data.push(res_v_new);
-
 
 }

@@ -244,6 +244,9 @@ fn main() {
          let mut last_v: f64 = 0.0;
          let mut noFirst: bool = true;
          for j in 0..tmp_t.len() {
+              if tmp_t[j]<i {
+                continue;
+              }
               if tmp_t[j]>=i as f64{
                 if noFirst {
                   first_t=tmp_t[j];

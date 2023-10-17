@@ -15,18 +15,18 @@ use std::env;
 use csv::ReaderBuilder;
 use std::{fs, io};
 
-type Image = ImageBuffer<Luma<f64>, Vec<f64>>;
+type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
 fn run_series(series_t: &[f64], series_v: &[f64], width: u32, height: u32) -> Image {
     // initialize new image
-    let mut data = Image::new(width, height);
+    let mut img_data = Image::new(width, height);
     // println!("length:{}", series.len());
 
     for i in 0..series_t.len()-1 {
     // -1 because draw line connecting two points
     // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
         draw_line_segment_mut(
-            &mut data,
+            &mut img_data,
             (series_t[i as usize] as f32, series_v[i as usize] as f32),
             (series_t[i as usize + 1] as f32, series_v[i as usize + 1] as f32),
             Luma([1.0]),
@@ -38,15 +38,15 @@ fn run_series(series_t: &[f64], series_v: &[f64], width: u32, height: u32) -> Im
     for x in 0..width {
         let mut sum = 0.0;
         for y in 0..height {
-            sum += data.get_pixel(x,y)[0];
+            sum += img_data.get_pixel(x,y)[0];
         }
         for y in 0..height {
-            let value = data.get_pixel(x,y)[0];
-            data.put_pixel(x,y,Luma([value / sum]));
+            let value = img_data.get_pixel(x,y)[0];
+            img_data.put_pixel(x,y,Luma([value / sum]));
         }
     }
 
-    data
+    img_data
 }
 
 /// Reducer that combines counts from two time series.

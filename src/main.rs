@@ -232,7 +232,7 @@ fn main() {
     let tmp_t=&data[0];
     let tmp_v=&data[1];
     // let w:u32 = 2; // the number of pixel columns should = width
-    for i in 0..w {
+    for i in 0..w as u32{
          // println!("{}", x as f32/k as f32);
          let mut large_v: f64 = f64::MIN; // note value range [0,height]
          let mut small_v: f64 = f64::MAX; // note value range [0,height]
@@ -244,21 +244,21 @@ fn main() {
          let mut last_v: f64 = 0.0;
          let mut noFirst: bool = true;
          for j in 0..tmp_t.len() {
-              if tmp_t[j]>=i {
+              if tmp_t[j]>=i as f64{
                 if noFirst {
                   first_t=tmp_t[j];
                   first_v=tmp_v[j];
                   noFirst=false;
                 }
               }
-              if tmp_t[j]>= i+1 {
+              if tmp_t[j]>= i as f64 +1.0 {
                   break;
               }
               last_t=tmp_t[j];
               last_v=tmp_v[j];
               if large_v < tmp_v[j] {
-                  large_v = tmp_v[j]
-                  large_t = tmp_t[j]
+                  large_v = tmp_v[j];
+                  large_t = tmp_t[j];
               }
               if small_v > tmp_v[j] {
                   small_v = tmp_v[j];

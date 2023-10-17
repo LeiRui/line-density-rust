@@ -116,12 +116,12 @@ fn get_files_in_directory(path: &str) -> io::Result<Vec<String>> {
 
 fn main() {
     // arguments: width,height,csv_path,has_header,tqs,tqe
-    let mut width:f64 = 400;
-    let mut height:f64 = 300;
+    let mut width:f64 = 400.0;
+    let mut height:f64 = 300.0;
     let mut csv_path = String::from("None"); // "ts-{}-{}.csv".format(input,approach,w)
     let mut has_header = true;
-    let mut tqe:f64 = 0;
-    let mut tqs:f64 = 4259092178974; // adapt based on width later
+    let mut tqe:f64 = 0.0;
+    let mut tqs:f64 = 4259092178974.0; // adapt based on width later
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
@@ -253,5 +253,5 @@ fn main() {
     }
     data.push(res_v_new);
 
-    
+
 }

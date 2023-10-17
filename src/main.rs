@@ -17,7 +17,7 @@ use std::{fs, io};
 
 type Image = ImageBuffer<Luma<f64>, Vec<f64>>;
 
-fn run_series(series: &[f64], width: f64, height: f64, k: f64, downsampling: bool) -> Image {
+fn run_series(series: &[u32], width: u32, height: u32, k: u32, downsampling: bool) -> Image {
     // initialize new image
     let mut data = Image::new(width, height);
     // println!("length:{}", series.len());
@@ -33,14 +33,14 @@ fn run_series(series: &[f64], width: f64, height: f64, k: f64, downsampling: boo
           // but first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column,
           // so only last point needs alignment
               let j = (i / 4 + 1 ) * k - 1; // e.g., k=10, i=3, j=9
-              let x = j as f64 / k as f64; // e.g., x=9/10 rather than 3/4
+              let x = j as f32 / k as f32; // e.g., x=9/10 rather than 3/4
               draw_line_segment_mut(
                  &mut data,
-                 (x, series[i as usize] as f64),
-                 ((i as f64 +1.0)/4.0, series[i as usize + 1]  as f64),
+                 (x, series[i as usize] as f32),
+                 ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
                  Luma([1.0]),
               );
-              // println!("({},{}),({},{}),",x,series[i as usize],(i as f64 +1.0)/4.0,series[i as usize + 1]);
+              // println!("({},{}),({},{}),",x,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
               // https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html
               // Uses Bresenham’s line drawing algorithm.
           }
@@ -48,11 +48,11 @@ fn run_series(series: &[f64], width: f64, height: f64, k: f64, downsampling: boo
           // first point 4/4=10/10, and TP&BP's t do not matter as long as they are inside the same column
               draw_line_segment_mut(
                   &mut data,
-                  (i as f64 / 4.0, series[i as usize] as f64),
-                  ((i as f64 +1.0)/4.0, series[i as usize + 1]  as f64),
+                  (i as f32 / 4.0, series[i as usize] as f32),
+                  ((i as f32 +1.0)/4.0, series[i as usize + 1]  as f32),
                   Luma([1.0]),
               );
-              // println!("({},{}),({},{}),",i as f64 / 4.0,series[i as usize],(i as f64 +1.0)/4.0,series[i as usize + 1]);
+              // println!("({},{}),({},{}),",i as f32 / 4.0,series[i as usize],(i as f32 +1.0)/4.0,series[i as usize + 1]);
           }
       }
     }
@@ -62,11 +62,11 @@ fn run_series(series: &[f64], width: f64, height: f64, k: f64, downsampling: boo
       // simulated data t-v and chart data x-y are the same scale, i.e., x in [0,width), y in [0,height]
           draw_line_segment_mut(
               &mut data,
-              (x as f64 / k as f64, series[x as usize] as f64),
-              ((x as f64 + 1.0) / k as f64, series[x as usize + 1] as f64),
+              (x as f32 / k as f32, series[x as usize] as f32),
+              ((x as f32 + 1.0) / k as f32, series[x as usize + 1] as f32),
               Luma([1.0]),
           );
-          // println!("({},{}),({},{}),",x as f64 / k as f64,series[x as usize],(x as f64 + 1.0) / k as f64,series[x as usize + 1]);
+          // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
       }
     }
 

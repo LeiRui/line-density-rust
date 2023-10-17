@@ -115,353 +115,90 @@ fn get_files_in_directory(path: &str) -> io::Result<Vec<String>> {
 }
 
 fn main() {
-    // arguments: iterations,k,width,height,use_external_data,csv_dir_path,has_header
-    // synthetic: 100,10,400,300
-    // real: 2,10,400,300,true,"/home/data",true
-    let mut iterations = 100; // number of time series
-    let mut k = 4; // regular point count = width*k
+    // arguments: width,height,csv_path,has_header,tqs,tqe
     let mut width = 400;
-    let height; // if not set, default = width
-    let mut use_external_data = false;
-    let mut csv_dir_path = String::from("None");
-    let mut has_header = false;
+    let mut height = 300;
+    let mut csv_path = String::from("None"); // "ts-{}-{}.csv".format(input,approach,w)
+    let mut has_header = true;
+    let mut tqe = 0;
+    let mut tqs = 4259092178974; // adapt based on width later
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
-    if args.len() > 1 {
-            iterations = match args[1].parse() {
+    if args.len() >= 6 {
+            width = match args[1].parse() {
                 Ok(n) => {
                     n
                 },
                 Err(_) => {
-                    println!("error: argument not an integer");
+                    println!("error: argument width");
                     return;
                 },
             };
-    }
-    if args.len() > 2 {
-        k = match args[2].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not an integer");
-                return;
-            },
-        };
-    }
-    if args.len() > 3 {
-        width = match args[3].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not an integer");
-                return;
-            },
-        };
-    }
-    if args.len() > 4 {
-        height = match args[4].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not an integer");
-                return;
-            },
-        };
+            height = match args[2].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument height");
+                    return;
+                },
+            };
+            csv_path = match args[3].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument csv_path");
+                    return;
+                },
+            };
+            has_header = match args[4].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: argument has_header");
+                    return;
+                },
+            };
+            tqs = match args[5].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: tqs");
+                    return;
+                },
+            };
+            tqe = match args[6].parse() {
+                Ok(n) => {
+                    n
+                },
+                Err(_) => {
+                    println!("error: tqe");
+                    return;
+                },
+            };
     }
     else {
-        height = width;
-    }
-    if args.len() > 5 {
-        use_external_data = match args[5].parse() {
-            Ok(n) => {
-                n
-            },
-            Err(_) => {
-                println!("error: argument not a bool");
-                return;
-            },
-        };
-    }
-    if use_external_data {
-        if args.len() > 7 {
-            csv_dir_path = match args[6].parse() {
-                Ok(n) => {
-                    n
-                },
-                Err(_) => {
-                    println!("error: argument not a string");
-                    return;
-                },
-            };
-            has_header = match args[7].parse() {
-                Ok(n) => {
-                    n
-                },
-                Err(_) => {
-                    println!("error: argument not a string");
-                    return;
-                },
-            };
-        }
-        else {
-            println!("error: missing csv_dir_path, has_header");
+            println!("error arguments: width,height,csv_path,has_header,tqs,tqe");
             return;
-        }
     }
 
-    // arguments: iterations,k,width,height,use_external_data,csv_dir_path,has_header
-    println!("number of time series: {}", iterations);
-    println!("number of points in a time series: {}", width*k);
+
+    // arguments: iterations,k,width,height,use_external_data,csv_path,has_header
     println!("width: {}, height: {}", width, height);
-    println!("use_external_data: {}", use_external_data);
-    println!("csv_dir_path: {}", csv_dir_path);
+    println!("csv_path: {}", csv_path);
     println!("has_header: {}", has_header);
+    println!("tqs: {}", has_header);
+    println!("tqe: {}", has_header);
+
+    // t_max=math.ceil((t_max_temp-t_min)/(2*width))*2*width+t_min
+    let f = (tqs-tqe)/(2*width);
+    tqe = f.ceil()*2*width+tqs;
+    println!("adapted tqe: {}", tqe);
+
     println!("=============================================");
 
-    let mut data:Vec<Vec<u32>>;
-    if !use_external_data {
-        // create sine wave as a model
-        let model: Vec<f32> = (0..width*k).map(|x| { // note that x is regular
-            let heightf = height as f32;
-            let xf = x as f32 / k as f32;
-            let y = heightf/4.0 * (xf/20.0).sin() + heightf/2.0;
-            y
-        }).collect();
-
-        data = (0..iterations).map(|_| {
-            // add some noise
-            let normal = Normal::new(0.0, 12.0); // mean 0, standard deviation 12
-            let mut rng = rand::thread_rng();
-            // Each thread has an initialized generator.
-            // Integers are uniformly distributed over the range of the type,
-            // and floating point numbers are uniformly distributed from 0 up to but not including 1.
-
-            model.iter().map(|v| {
-                let value = v + normal.ind_sample(& mut rng) as f32;
-                if value < 0.0 {
-                    0u32
-                } else if value > height as f32 {
-                    height
-                } else {
-                    value as u32 // note
-                }
-            }).collect()
-        }).collect();
-    }
-    else {
-        // read iterations csv files from csv_dir_path,
-        // for each csv read the first width*k points,
-        // only read the second column as values, as timestamps are regular (0..width*k)/k
-        let files:Vec<String> = match get_files_in_directory(&csv_dir_path) {
-            Ok(files) => {
-                files
-            },
-            Err(_) => {
-                println!("error: get_files_in_directory");
-                return;
-            },
-        };
-        println!("{:?}", files);
-        if files.len() < iterations {
-            println!("error: there are no iterations number of files in csv_dir_path");
-            return;
-        }
-
-        let mut data_tmp: Vec<Vec<f32>> = Vec::new();
-        let mut global_min: f32 = f32::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
-        let mut global_max: f32 = f32::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
-        for i in 0..iterations {
-            let f = format!("{}/{}",csv_dir_path,files[i]); // the i-th files, containing the i-th time series
-            let mut res: Vec<f32> = Vec::new();
-            let mut point_cnt = 0; // width*k points
-
-            let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(&f);
-            let reader = match reader_result {
-                Ok(reader) => reader,
-                Err(_) => { println!("error match reader_result"); return; },
-            };
-            for record in reader.into_records() {
-                let record = match record {
-                    Ok(record) => record,
-                    Err(_) => { println!("error match record"); return; },
-                };
-
-                let row: Vec<String> = record
-                        .iter()
-                        .map(|field| field.trim().to_string())
-                        .collect();
-
-                if row.len()<2 {
-                        println!("error: the file f has less than 2 columns");
-                        return;
-                }
-                // println!("{:?}", row);
-
-                // parse string into double value and then value as u32
-                let v = row[1].parse::<f32>().unwrap();
-                res.push(v); // assume the second column is value field
-
-                if v > global_max {
-                    global_max = v;
-                }
-                if v < global_min {
-                    global_min = v;
-                }
-
-                point_cnt += 1;
-                if point_cnt >= width*k { // only needs width*k points in each file f
-                    break;
-                }
-            } // end for loop
-            if point_cnt < width*k { // the file f has less than width*k points
-                println!("error: the file {} has less than width*k points",f);
-                return;
-            }
-            data_tmp.push(res); // finish one time series
-        } // end for, finish iteration numbers of time series
-
-        // scale v: (v-global_min)/(global_max-global_min)*height
-        data = Vec::new();
-        for i in 0..iterations {
-            let mut res: Vec<u32> = Vec::new();
-            for j in 0..width*k {
-                let v: f32 = (data_tmp[i as usize][j as usize]-global_min)/(global_max-global_min)* height as f32;
-                res.push(v as u32);
-            }
-            data.push(res);
-        } // end for
-
-    }// end else
-
-
-    // M4 downsampling
-    // data -> downsampled_data
-    let w = width;
-    // let w:u32 = 2; // the number of pixel columns should = width
-    let downsamples: Vec<Vec<u32>> = data.iter().map(|series| { // for one series
-         let mut res: Vec<u32> = Vec::new();
-         for i in 0..w {
-         // (0..w).map(|i| {
-             // println!("{}", x as f32/k as f32);
-             let start = series.len()/w as usize * i as usize;
-             let end = series.len()/w as usize * (i+1) as usize;
-             let mut large: u32 = 0; // note value range [0,height]
-             let mut small: u32 = height+1; // note value range [0,height]
-             for j in start..end {
-                  if large < series[j] {
-                      large = series[j]
-                  }
-                  if small > series[j] {
-                      small = series[j]
-                  }
-                  // print!("{},",series[j]);
-             }
-             // println!("");
-             let first = series[start];
-             let last = series[end-1];
-             // println!("first={},last={},small={},large={}",first,last,small,large);
-             res.push(first);
-             res.push(small);
-             res.push(large);
-             res.push(last); // note this is the last
-         }
-         res
-    }).collect();
-
-    //for row in data.iter() {
-        //println!("{:?}", row);
-    //}
-
-    //for row in downsamples.iter() {
-        //println!("{:?}", row);
-    //}
-
-    // color scale to convert from value to a color
-    let color_scale = Gradient::new(vec![
-        Lab::from(LinSrgb::new_u8(0,0,0)),
-        Lab::from(LinSrgb::new_u8(0,0,0))
-    ]);
-
-    // ------------------------- test original -------------------------
-    let mut downsampling = false;
-    let mut input_data: Vec<Vec<u32>> = data;
-    let mut now = Instant::now();
-    let mut aggregated = input_data
-        .par_iter()
-        .map(|series| {
-            run_series(&series, width as u32, height as u32, k as u32, downsampling)
-        })
-        .reduce(|| Image::new(width as u32, height as u32), sum_images);
-
-    println!("Downsampling:{}, Computing line density took {}ms", downsampling, now.elapsed().as_millis());
-
-    let mut img = RgbImage::new(width as u32, height as u32);
-
-    // find the maximum value so that we can scale colors
-    let mut max_value = aggregated.pixels().fold(
-        0.0,
-        |max,pixel| f32::max(max, pixel[0])
-    );
-
-    // create output image
-    for (x, y, pixel) in aggregated.enumerate_pixels() {
-        let value = pixel[0];
-        if value == 0.0 {
-            img.put_pixel(x,y,image::Rgb([255,255,255]));
-        } else {
-            let color = LinSrgb::from(color_scale.get(value / max_value));
-            let converted_color = image::Rgb([
-                (color.red * 255.0).round() as u8,
-                (color.green * 255.0).round() as u8,
-                (color.blue * 255.0).round() as u8]
-            );
-
-            img.put_pixel(x,y,converted_color);
-        }
-    }
-
-    img.save(format!("output-i{}-k{}-w{}-h{}-u{}-d{}.png", iterations, k, width, height, use_external_data, downsampling)).unwrap();
-
-    // ------------------------- test downsampled -------------------------
-    downsampling = true;
-    input_data = downsamples;
-    now = Instant::now();
-    aggregated = input_data
-        .par_iter()
-        .map(|series| {
-            run_series(&series, width as u32, height as u32, k as u32, downsampling)
-        })
-        .reduce(|| Image::new(width as u32, height as u32), sum_images);
-
-    println!("Downsampling:{}, Computing line density took {}ms", downsampling, now.elapsed().as_millis());
-
-    img = RgbImage::new(width as u32, height as u32);
-
-    // find the maximum value so that we can scale colors
-    max_value = aggregated.pixels().fold(
-        0.0,
-        |max,pixel| f32::max(max, pixel[0])
-    );
-
-    // create output image
-    for (x, y, pixel) in aggregated.enumerate_pixels() {
-        let value = pixel[0];
-        if value == 0.0 {
-            img.put_pixel(x,y,image::Rgb([255,255,255]));
-        } else {
-            let color = LinSrgb::from(color_scale.get(value / max_value));
-            let converted_color = image::Rgb([
-                (color.red * 255.0).round() as u8,
-                (color.green * 255.0).round() as u8,
-                (color.blue * 255.0).round() as u8]
-            );
-
-            img.put_pixel(x,y,converted_color);
-        }
-    }
-    img.save(format!("output-i{}-k{}-w{}-h{}-u{}-d{}.png", iterations, k, width, height, use_external_data, downsampling)).unwrap();
 }

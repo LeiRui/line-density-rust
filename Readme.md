@@ -1,32 +1,27 @@
-# Line density
+# Pixel-perfect M4
 
-Compute a line density with normalization to accurately show density in time series data.
+This respository is aimed to use reproduce the pixel-perfect result of M4 in paper "U. Jugel, Z. Jerzak, G. Hackenbroich, and V. Markl. M4: A visualization-oriented time series data aggregation. Proc. VLDB Endow., 7(10):797–808, 2014".
 
-Output of the generated example data:
-
-<img src="output.png" width="400"></img>
-
-## Run
-
-You can pass the number of time series that should be generated as a command line argument. 
-
-### In development mode
-
-`cargo run`
-
-### In release mode
+## Build
 
 ```
 cargo build --release
-target/release/line-density
 ```
 
-To run an experiment with one million time series, run `target/release/line-density 1000000`.
+## Plot
 
-## Limitations
+```
+target/release/line-density 1 100 400
+```
 
-The code right now only computes line density for time series data that is generated in the code itself. It needs to be adjusted if you want to compute density of some other time series data. 
+This command plot the line chart of one time series containing `100*400` points on a `400*400` canvas, using raw data points and M4 representation points to output `output-i1-k100-w400-h400-ufalse-dfalse.png` and `output-i1-k100-w400-h400-ufalse-dtrue.png`, respectively.
 
-## Performance
+## Compute DSSIM
 
-The current implementation does not use GPUs but it runs the density computation parallel. On a machine with 120 cores, the computation for one million time series takes about 16 seconds.
+We compute DSSIM=1-(1-SSIM)/2, the same definition used in the experiments by Jugel et al.
+
+```
+python3 run-DSSIM.py
+```
+
+This command compute the DSSIM of the output two pngs in the previous step, and the result is 1 meaning M4 achieves pixel-perfectness using [the drawing tool that support Bresenham's line drawing algorithm](https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html).

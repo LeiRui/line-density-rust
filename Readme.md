@@ -11,20 +11,37 @@ cargo build --release
 ## 2. Plot
 
 ```
-target/release/line-density 1 100 400
+target/release/line-density [n] [k] [w] [h]
 ```
 
-This command plots the line chart of one time series containing `100*400` points on a `400*400` canvas, using raw data points and M4 representation points to output `output-i1-k100-w400-h400-ufalse-dfalse.png` and `output-i1-k100-w400-h400-ufalse-dtrue.png`, respectively.
+-   n: the number of time series
+-   k: control the number of points in a time series as `k*w`
+-   w: the pixel width of the rendered line chart
+-   h: the pixel height of the rendered line chart
+
+For example:
+
+```
+target/release/line-density 1 100 400 400
+```
+
+The command plots the line chart of one time series containing `100*400` points on a `400*400` canvas, using raw data points and M4 representation points to output `output-i1-k100-w400-h400-ufalse-dfalse.png` and `output-i1-k100-w400-h400-ufalse-dtrue.png`, respectively.
 
 ## 3. Compute DSSIM
 
 We use the definition DSSIM=1-(1-SSIM)/2, the same as used in the experiments by Jugel et al.
 
 ```
-python3 run-DSSIM.py
+python3 run-DSSIM.py -i1 [image1 path] -i2 [image2 path]
 ```
 
-This command computes the DSSIM of the two output pngs in the previous plot step. 
+For example:
+
+```
+python3 run-DSSIM.py -i1 output-i1-k100-w400-h400-ufalse-dfalse.png -i2 output-i1-k100-w400-h400-ufalse-dtrue.png
+```
+
+The command computes the DSSIM of the two output pngs in the previous plot step. 
 
 The result DSSIM equals 1, meaning that M4 can achieve pixel-perfectness when using the [drawing tool that support Bresenham's line drawing algorithm](https://docs.rs/imageproc/latest/imageproc/drawing/fn.draw_line_segment_mut.html).
 

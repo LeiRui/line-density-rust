@@ -17,7 +17,7 @@ use std::{fs, io};
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
-fn run_series(series_t: &[f64], series_v: &[f64], width: u32, height: u32) -> Image {
+fn run_series(series_t: &[f32], series_v: &[f32], width: u32, height: u32) -> Image {
     // initialize new image
     let mut img_data = Image::new(width, height);
     // println!("length:{}", series.len());
@@ -80,12 +80,12 @@ fn get_files_in_directory(path: &str) -> io::Result<Vec<String>> {
 
 fn main() {
     // arguments: width,height,csv_path,has_header,tqs,tqe
-    let mut width:f64 = 400.0;
-    let mut height:f64 = 300.0;
+    let mut width:f32 = 400.0;
+    let mut height:f32 = 300.0;
     let mut csv_path = String::from("None"); // "ts-{}-{}.csv".format(input,approach,w)
     let mut has_header = true;
-    let mut tqe:f64 = 0.0;
-    let mut tqs:f64 = 4259092178974.0; // adapt based on width later
+    let mut tqe:f32 = 0.0;
+    let mut tqs:f32 = 4259092178974.0; // adapt based on width later
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
@@ -166,12 +166,12 @@ fn main() {
     println!("=============================================");
 
     // read csv
-    let mut data: Vec<Vec<f64>> = Vec::new(); // the first vector being t, the second vector being v
-    let mut global_min: f64 = f64::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
-    let mut global_max: f64 = f64::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
+    let mut data: Vec<Vec<f32>> = Vec::new(); // the first vector being t, the second vector being v
+    let mut global_min: f32 = f32::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
+    let mut global_max: f32 = f32::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
     let f = &csv_path;
-    let mut res_t: Vec<f64> = Vec::new(); // t
-    let mut res_v: Vec<f64> = Vec::new(); // v
+    let mut res_t: Vec<f32> = Vec::new(); // t
+    let mut res_v: Vec<f32> = Vec::new(); // v
     let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(&f);
     let reader = match reader_result {
         Ok(reader) => reader,
@@ -194,9 +194,9 @@ fn main() {
         }
         // println!("{:?}", row);
 
-        // parse string into double value and then value as f64
-        let t = row[0].parse::<f64>().unwrap();
-        let v = row[1].parse::<f64>().unwrap();
+        // parse string into double value and then value as f32
+        let t = row[0].parse::<f32>().unwrap();
+        let v = row[1].parse::<f32>().unwrap();
         res_t.push(t);
         res_v.push(v);
 
@@ -209,14 +209,14 @@ fn main() {
     } // end read
 
     // scale v: (v-global_min)/(global_max-global_min)*height
-    let mut res_t_new: Vec<f64> = Vec::new();
-    let mut res_v_new: Vec<f64> = Vec::new();
+    let mut res_t_new: Vec<f32> = Vec::new();
+    let mut res_v_new: Vec<f32> = Vec::new();
     for j in 0..res_v.len() {
-        let t: f64 = (res_t[j as usize]-tqs)/(tqe-tqs)* width;
-        res_t_new.push(t as f64);
+        let t: f32 = (res_t[j as usize]-tqs)/(tqe-tqs)* width;
+        res_t_new.push(t as f32);
 
-        let v: f64 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
-        res_v_new.push(v as f64);
+        let v: f32 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
+        res_v_new.push(v as f32);
     }
 
     for j in 0..12 {
@@ -234,27 +234,27 @@ fn main() {
     // let w:u32 = 2; // the number of pixel columns should = width
     for i in 0..w as u32{
          // println!("{}", x as f32/k as f32);
-         let mut large_v: f64 = f64::MIN; // note value range [0,height]
-         let mut small_v: f64 = f64::MAX; // note value range [0,height]
-         let mut large_t: f64 = 0.0;
-         let mut small_t: f64 = 0.0;
-         let mut first_t: f64 = 0.0;
-         let mut first_v: f64 = 0.0;
-         let mut last_t: f64 = 0.0;
-         let mut last_v: f64 = 0.0;
+         let mut large_v: f32 = f32::MIN; // note value range [0,height]
+         let mut small_v: f32 = f32::MAX; // note value range [0,height]
+         let mut large_t: f32 = 0.0;
+         let mut small_t: f32 = 0.0;
+         let mut first_t: f32 = 0.0;
+         let mut first_v: f32 = 0.0;
+         let mut last_t: f32 = 0.0;
+         let mut last_v: f32 = 0.0;
          let mut noFirst: bool = true;
          for j in 0..tmp_t.len() {
-              if tmp_t[j]<i as f64{
+              if tmp_t[j]<i as f32{
                 continue;
               }
-              if tmp_t[j]>=i as f64{
+              if tmp_t[j]>=i as f32{
                 if noFirst {
                   first_t=tmp_t[j];
                   first_v=tmp_v[j];
                   noFirst=false;
                 }
               }
-              if tmp_t[j]>= i as f64 +1.0 {
+              if tmp_t[j]>= i as f32 +1.0 {
                   break;
               }
               last_t=tmp_t[j];

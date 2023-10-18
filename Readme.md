@@ -32,13 +32,13 @@ The command plots the line chart of one time series containing `100*400` points 
 We use the definition DSSIM=1-(1-SSIM)/2, the same as used in the experiments by Jugel et al.
 
 ```
-python3 run-DSSIM.py -i1 [image1 path] -i2 [image2 path]
+python3 run-DSSIM.py -f1 [image1 path] -f2 [image2 path]
 ```
 
 For example:
 
 ```
-python3 run-DSSIM.py -i1 output-i1-k100-w400-h400-ufalse-dfalse.png -i2 output-i1-k100-w400-h400-ufalse-dtrue.png
+python3 run-DSSIM.py -f1 output-i1-k100-w400-h400-ufalse-dfalse.png -f2 output-i1-k100-w400-h400-ufalse-dtrue.png
 ```
 
 The command computes the DSSIM of the two output pngs in the previous plot step. 

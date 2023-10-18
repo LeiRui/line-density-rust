@@ -7,12 +7,13 @@ from skimage import img_as_float
 import cv2
 from skimage.metrics import structural_similarity as ssim
 from PIL import Image
+import argparse
 
 
 parser=argparse.ArgumentParser(description="compute DSSIM",
                                formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-i1","--input1",help="input image 1")
-parser.add_argument("-i2","--input2",help="input image 2")
+parser.add_argument("-f1","--input1",help="input image 1")
+parser.add_argument("-f2","--input2",help="input image 2")
 args = parser.parse_args()
 config = vars(args)
 input1=str(config.get('input1'))

@@ -172,8 +172,8 @@ fn main() {
     let mut global_min: f32 = f32::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
     let mut global_max: f32 = f32::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
     let f = &csv_path;
-    let mut res_t: Vec<f32> = Vec::new(); // t
-    let mut res_v: Vec<f32> = Vec::new(); // v
+    let mut res_t_new: Vec<f32> = Vec::new(); // t
+    let mut res_v_new: Vec<f32> = Vec::new(); // v
     let reader_result = ReaderBuilder::new().has_headers(has_header).from_path(&f);
     let reader = match reader_result {
         Ok(reader) => reader,
@@ -199,8 +199,8 @@ fn main() {
         // parse string into double value and then value as f32
         let t = row[0].parse::<f32>().unwrap();
         let v = row[1].parse::<f32>().unwrap();
-        res_t.push(t);
-        res_v.push(v);
+        res_t_new.push(t);
+        res_v_new.push(v);
 
         if v > global_max {
             global_max = v;
@@ -211,19 +211,21 @@ fn main() {
     } // end read
 
     // scale v: (v-global_min)/(global_max-global_min)*height
-    let mut res_t_new: Vec<f32> = Vec::new();
-    let mut res_v_new: Vec<f32> = Vec::new();
-    for j in 0..res_v.len() {
-        let t1: f32 = (res_t[j as usize]-tqs)/(tqe-tqs); // 0.999999
-        let t2: f32 = (t1 * 100.0).floor() / 100.0; // 0.99
-        let t: f32 = t2*width;
-        res_t_new.push(t as f32);
-        print!("{}-{},",res_t[j as usize],t);
+    //let mut res_t_new: Vec<f32> = Vec::new();
+    //let mut res_v_new: Vec<f32> = Vec::new();
+    //for j in 0..res_v.len() {
+        //let t1: f64 = (res_t[j as usize] as f64 - tqs as f64)/(tqe as f64-tqs as f64)*width as f64; // 0.999999
+        //let t2: f64 = (t1 * 100.0).floor() / 100.0; // 0.99
+        //let t1 = dec!(res_t[j as usize])
+        //let t: f32 = (res_t[j as usize] - tqs)/(tqe-tqs)*width;
+        //res_t_new.push(t as f32);
+        //print!("{}-{},",res_t[j as usize],t);
 
-        let v: f32 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
-        res_v_new.push(v as f32);
-    }
-    println!("");
+        //let v: f32 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
+        //res_v_new.push(v as f32);
+    //}
+    //println!("");
+
 
     for j in 0..12 {
         print!("({},{}),",res_t_new[j],res_v_new[j]);

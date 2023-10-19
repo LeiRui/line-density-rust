@@ -14,6 +14,8 @@ use std::time::Instant;
 use std::env;
 use csv::ReaderBuilder;
 use std::{fs, io};
+use rust_decimal::prelude::*;
+use rust_decimal_macros::dec;
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
@@ -212,12 +214,15 @@ fn main() {
     let mut res_t_new: Vec<f32> = Vec::new();
     let mut res_v_new: Vec<f32> = Vec::new();
     for j in 0..res_v.len() {
-        let t: f32 = (res_t[j as usize]-tqs)/(tqe-tqs)* width;
+        let t1: f32 = (res_t[j as usize]-tqs)/(tqe-tqs);
+        let t: f32 = t1..round_dp(2)*width;
         res_t_new.push(t as f32);
+        print!("{}-{},",res_t[j as usize],t);
 
         let v: f32 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
         res_v_new.push(v as f32);
     }
+    println!("");
 
     for j in 0..12 {
         print!("({},{}),",res_t_new[j],res_v_new[j]);

@@ -157,8 +157,8 @@ fn main() {
     println!("width: {}, height: {}", width, height);
     println!("csv_path: {}", csv_path);
     println!("has_header: {}", has_header);
-    println!("tqs: {}", has_header);
-    println!("tqe: {}", has_header);
+    println!("tqs: {}", tqs);
+    println!("tqe: {}", tqe);
 
     // t_max=math.ceil((t_max_temp-t_min)/(2*width))*2*width+t_min
     let f = (tqe-tqs)/(2.0*width);

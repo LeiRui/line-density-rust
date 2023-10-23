@@ -1,6 +1,6 @@
 # Pixel-perfect M4
 
-This respository demonstrates the pixel-perfectness of [M4](http://www.vldb.org/pvldb/vol7/p797-jugel.pdf) for line charts rendered with no anti-aliasing.
+This repository renders line charts without anti-aliasing for use in DSSIM experiments.
 
 ## 1. Build
 
@@ -11,23 +11,23 @@ cargo build --release
 ## 2. Plot
 
 ```
-target/release/line-density width height csv_path has_header tqs tqe
+target/release/line-density width height csv_path has_header
 ```
 
 -   width: the pixel width of the rendered line chart
 -   height: the pixel height of the rendered line chart
 -   csv_path: the input csv path 
+    -   we assume that the input time series in the csv has already been projected into the width*height canvas pixel space, which is realized by M4_VISUALIZATION_EXP/tools/parse.py
+
 -   has_header: the input csv path has header or not
--   tqs: the start time (x-axis) of the rendered line chart
--   tqe: the end time (x-axis) of the rendered line chart
 
 For example:
 
 ```
-target/release/line-density 100 100 ts-rawQuery-100.csv true 0 617426057626
+target/release/line-density 100 100 ts-rawQuery-100.csv true
 ```
 
-The command plots the line chart of one time series from `ts-rawQuery-100.csv` on a `100*100` canvas with time range as `[0,617426057626)`. The output png is `ts-rawQuery-100.csv-100.png`.
+The command plots the line chart of time series in `ts-rawQuery-100.csv` on a `100*100` canvas. The output png is `ts-rawQuery-100.csv-100.png`.
 
 ## References
 

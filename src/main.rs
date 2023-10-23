@@ -61,37 +61,16 @@ fn sum_images(image: Image, mut aggregated: Image) -> Image {
     aggregated
 }
 
-fn get_files_in_directory(path: &str) -> io::Result<Vec<String>> {
-    // Get a list of all entries in the folder
-    let entries = fs::read_dir(path)?;
-
-    // Extract the filenames from the directory entries and store them in a vector
-    let file_names: Vec<String> = entries
-        .filter_map(|entry| {
-            let path = entry.ok()?.path();
-            if path.is_file() {
-                path.file_name()?.to_str().map(|s| s.to_owned())
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    Ok(file_names)
-}
-
 fn main() {
-    // arguments: width,height,csv_path,has_header,tqs,tqe
+    // arguments: width,height,csv_path,has_header
     let mut width:f32 = 400.0;
     let mut height:f32 = 300.0;
     let mut csv_path = String::from("None"); // "ts-{}-{}.csv".format(input,approach,w)
     let mut has_header = true;
-    let mut tqe:f32 = 0.0;
-    let mut tqs:f32 = 4259092178974.0; // adapt based on width later
 
     // parse command line argument
     let args: Vec<_> = env::args().collect();
-    if args.len() >= 6 {
+    if args.len() >= 4 {
             width = match args[1].parse() {
                 Ok(n) => {
                     n
@@ -128,49 +107,24 @@ fn main() {
                     return;
                 },
             };
-            tqs = match args[5].parse() {
-                Ok(n) => {
-                    n
-                },
-                Err(_) => {
-                    println!("error: tqs");
-                    return;
-                },
-            };
-            tqe = match args[6].parse() {
-                Ok(n) => {
-                    n
-                },
-                Err(_) => {
-                    println!("error: tqe");
-                    return;
-                },
-            };
     }
     else {
-            println!("error arguments: width,height,csv_path,has_header,tqs,tqe");
+            println!("error arguments: width,height,csv_path,has_header");
             return;
     }
 
 
-     // arguments: width,height,csv_path,has_header,tqs,tqe
+     // arguments: width,height,csv_path,has_header
     println!("width: {}, height: {}", width, height);
     println!("csv_path: {}", csv_path);
     println!("has_header: {}", has_header);
-    println!("tqs: {}", tqs);
-    println!("tqe: {}", tqe);
-
-    // t_max=math.ceil((t_max_temp-t_min)/(2*width))*2*width+t_min
-    let f = (tqe-tqs)/(2.0*width);
-    tqe = f.ceil()*2.0*width+tqs;
-    println!("adapted tqe: {}", tqe);
 
     println!("=============================================");
 
     // read csv
     let mut data: Vec<Vec<f32>> = Vec::new(); // the first vector being t, the second vector being v
-    let mut global_min: f32 = f32::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
-    let mut global_max: f32 = f32::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
+    //let mut global_min: f32 = f32::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
+    //let mut global_max: f32 = f32::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
     let f = &csv_path;
     let mut res_t_new: Vec<f32> = Vec::new(); // t
     let mut res_v_new: Vec<f32> = Vec::new(); // v
@@ -202,12 +156,12 @@ fn main() {
         res_t_new.push(t);
         res_v_new.push(v);
 
-        if v > global_max {
-            global_max = v;
-        }
-        if v < global_min {
-            global_min = v;
-        }
+        //if v > global_max {
+            //global_max = v;
+        //}
+        //if v < global_min {
+            //global_min = v;
+        //}
     } // end read
 
     // scale v: (v-global_min)/(global_max-global_min)*height

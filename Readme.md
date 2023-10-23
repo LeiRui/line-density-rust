@@ -22,10 +22,10 @@ target/release/line-density [n] [k] [w] [h]
 For example:
 
 ```
-target/release/line-density 1 100 400 400
+target/release/line-density 10 100000 100 100
 ```
 
-The command plots the line chart of one time series containing `100*400` points on a `400*400` canvas, using raw data points and M4 representation points to render `output-i1-k100-w400-h400-ufalse-dfalse.png` and `output-i1-k100-w400-h400-ufalse-dtrue.png`, respectively.
+The command plots the DenseLines of ten time series containing ten million points on a `100*100` canvas, using raw data points and M4 representation points to render `output-i10-k100000-w100-h100-ufalse-dfalse.png` and `output-i10-k100000-w100-h100-ufalse-dtrue.png`, respectively.
 
 ## 3. Plot using External Data
 
@@ -47,7 +47,7 @@ For example:
 target/release/line-density 45 10 160 100 true /root/csvDir true
 ```
 
-The command plots the line chart of 45 time series using the first 1600 points on a `160*100` canvas, using raw data points and M4 representation points to render `output-i45-k10-w160-h100-utrue-dfalse.png` and `output-i45-k10-w160-h100-utrue-dtrue.png`, respectively.
+The command plots the DenseLines of 45 time series each containing 1600 points from /root/csvDir on a `160*100` canvas, using raw data points and M4 representation points to render `output-i45-k10-w160-h100-utrue-dfalse.png` and `output-i45-k10-w160-h100-utrue-dtrue.png`, respectively.
 
 ## References
 

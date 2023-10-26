@@ -14,8 +14,6 @@ use std::time::Instant;
 use std::env;
 use csv::ReaderBuilder;
 use std::{fs, io};
-// use rust_decimal::prelude::*;
-// use rust_decimal_macros::dec;
 
 type Image = ImageBuffer<Luma<f32>, Vec<f32>>;
 
@@ -33,7 +31,6 @@ fn run_series(series_t: &[f32], series_v: &[f32], width: u32, height: u32) -> Im
             (series_t[i as usize + 1] as f32, series_v[i as usize + 1] as f32),
             Luma([1.0]),
         );
-        // println!("({},{}),({},{}),",x as f32 / k as f32,series[x as usize],(x as f32 + 1.0) / k as f32,series[x as usize + 1]);
     }
 
     // normalize
@@ -123,8 +120,6 @@ fn main() {
 
     // read csv
     let mut data: Vec<Vec<f32>> = Vec::new(); // the first vector being t, the second vector being v
-    //let mut global_min: f32 = f32::MAX; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
-    //let mut global_max: f32 = f32::MIN; // for scale value to [0,height]. (v-global_min)/(global_max-global_min)*height
     let f = &csv_path;
     let mut res_t_new: Vec<f32> = Vec::new(); // t
     let mut res_v_new: Vec<f32> = Vec::new(); // v
@@ -155,91 +150,12 @@ fn main() {
         let v = row[1].parse::<f32>().unwrap();
         res_t_new.push(t);
         res_v_new.push(v);
-
-        //if v > global_max {
-            //global_max = v;
-        //}
-        //if v < global_min {
-            //global_min = v;
-        //}
     } // end read
-
-    // scale v: (v-global_min)/(global_max-global_min)*height
-    //let mut res_t_new: Vec<f32> = Vec::new();
-    //let mut res_v_new: Vec<f32> = Vec::new();
-    //for j in 0..res_v.len() {
-        //let t1: f64 = (res_t[j as usize] as f64 - tqs as f64)/(tqe as f64-tqs as f64)*width as f64; // 0.999999
-        //let t2: f64 = (t1 * 100.0).floor() / 100.0; // 0.99
-        //let t1 = dec!(res_t[j as usize])
-        //let t: f32 = (res_t[j as usize] - tqs)/(tqe-tqs)*width;
-        //res_t_new.push(t as f32);
-        //print!("{}-{},",res_t[j as usize],t);
-
-        //let v: f32 = (res_v[j as usize]-global_min)/(global_max-global_min)* height;
-        //res_v_new.push(v as f32);
-    //}
-    //println!("");
-
-
-    //for j in 0..12 {
-        //print!("({},{}),",res_t_new[j],res_v_new[j]);
-    //}
 
     data.push(res_t_new);
     data.push(res_v_new);
 
-
-    // --------------------debug--------------------------
-    //let w = width;
-    //let tmp_t=&data[0];
-    //let tmp_v=&data[1];
-    // let w:u32 = 2; // the number of pixel columns should = width
-    //for i in 0..w as u32{
-          //println!("{}: ",i);
-         // println!("{}", x as f32/k as f32);
-         //let mut large_v: f32 = f32::MIN; // note value range [0,height]
-         //let mut small_v: f32 = f32::MAX; // note value range [0,height]
-         //let mut large_t: f32 = 0.0;
-         //let mut small_t: f32 = 0.0;
-         //let mut first_t: f32 = 0.0;
-         //let mut first_v: f32 = 0.0;
-         //let mut last_t: f32 = 0.0;
-         //let mut last_v: f32 = 0.0;
-         //let mut noFirst: bool = true;
-         //for j in 0..tmp_t.len() {
-              //println!("{},",tmp_t[j]);
-              //if tmp_t[j]<i as f32{
-               // continue;
-              //}
-              //if tmp_t[j]>= i as f32 +1.0 {
-                  //break;
-              //}
-              //if tmp_t[j]>=i as f32{
-                //if noFirst {
-                  //first_t=tmp_t[j];
-                 // first_v=tmp_v[j];
-                  //noFirst=false;
-                //}
-              //}
-              //last_t=tmp_t[j];
-              //last_v=tmp_v[j];
-              //if large_v < tmp_v[j] {
-                  //large_v = tmp_v[j];
-                  //large_t = tmp_t[j];
-              //}
-              //if small_v > tmp_v[j] {
-                  //small_v = tmp_v[j];
-                  //small_t = tmp_t[j];
-              //}
-              // print!("{},",series[j]);
-         //}
-         //println!("{},first=({},{}),last=({},{}),small=({},{}),large=({},{})",i,first_t,first_v,last_t,last_v,small_t,small_v,large_t,large_v);
-         //println!("");
-     //}
-
-
     // --------------------
-
     // color scale to convert from value to a color
     // binary color here
     let color_scale = Gradient::new(vec![
@@ -277,5 +193,4 @@ fn main() {
 
     // ts-lttb-600.csv-600.png
     img.save(format!("{}-{}.png", csv_path, width)).unwrap();
-
 }

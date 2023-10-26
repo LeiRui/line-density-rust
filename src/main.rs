@@ -345,8 +345,6 @@ fn main() {
     let downsamples: Vec<Vec<u32>> = data.iter().map(|series| { // for one series
          let mut res: Vec<u32> = Vec::new();
          for i in 0..w {
-         // (0..w).map(|i| {
-             // println!("{}", x as f32/k as f32);
              let start = series.len()/w as usize * i as usize;
              let end = series.len()/w as usize * (i+1) as usize;
              let mut large: u32 = 0; // note value range [0,height]
@@ -382,8 +380,6 @@ fn main() {
 
     // color scale to convert from value to a color
     let color_scale = Gradient::new(vec![
-        //Lab::from(LinSrgb::new_u8(247, 252, 241)),
-        //Lab::from(LinSrgb::new_u8(14, 66, 127))
         Lab::from(LinSrgb::new_u8(247, 252, 24)),
         Lab::from(LinSrgb::new_u8(14, 66, 127))
     ]);
